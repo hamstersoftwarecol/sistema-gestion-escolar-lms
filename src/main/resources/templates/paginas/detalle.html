@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pagina.titulo} + ' | ' + ${config.nombreAcademia}">Página Dinámica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-950 border-b border-slate-800 h-16 px-6 flex items-center justify-between sticky top-0 z-30">
+        <a th:href="@{/lms}" class="text-xs font-bold text-slate-400 hover:text-white transition flex items-center space-x-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Ir al Catálogo de Cursos</span>
+        </a>
+        <span class="text-xs font-bold text-brand-400" th:text="${config.nombreAcademia}">EduAcademy</span>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-6 sm:p-12 space-y-8">
+        <div class="text-center space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-brand-600/20 text-brand-400 flex items-center justify-center text-2xl mx-auto border border-brand-500/30">
+                <i th:class="'fa-solid ' + ${pagina.icono}"></i>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-black text-white" th:text="${pagina.titulo}">Título de la Página</h1>
+            <p class="text-xs text-slate-400">Última actualización: <span th:text="${#temporals.format(pagina.fechaActualizacion, 'dd/MM/yyyy')}"></span></p>
+        </div>
+
+        <div class="bg-slate-950 p-8 sm:p-12 rounded-3xl border border-slate-800 shadow-2xl text-slate-300 text-sm leading-relaxed whitespace-pre-line" th:text="${pagina.contenido}">
+            Contenido institucional de la página dinámica...
+        </div>
+
+        <!-- Links to other dynamic pages -->
+        <div class="pt-6 border-t border-slate-800 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+            <a th:href="@{/paginas/nosotros}" class="hover:text-white transition">Nosotros</a>
+            <span>•</span>
+            <a th:href="@{/paginas/terminos}" class="hover:text-white transition">Términos y Condiciones</a>
+            <span>•</span>
+            <a th:href="@{/paginas/privacidad}" class="hover:text-white transition">Política de Privacidad</a>
+            <span>•</span>
+            <a th:href="@{/paginas/preguntas-frecuentes}" class="hover:text-white transition">Preguntas Frecuentes</a>
+        </div>
+    </main>
+
+</body>
+</html>

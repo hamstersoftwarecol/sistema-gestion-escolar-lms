@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${articulo.titulo} + ' | Blog LMS'">Detalle del Artículo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation -->
+    <header class="bg-slate-950 border-b border-slate-800 h-16 px-6 flex items-center justify-between sticky top-0 z-30">
+        <a th:href="@{/blog}" class="text-xs font-bold text-slate-400 hover:text-white transition flex items-center space-x-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Volver al Blog</span>
+        </a>
+        <a th:href="@{/lms}" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition">
+            Ver Cursos
+        </a>
+    </header>
+
+    <!-- Post Article Body -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-6 sm:p-10 space-y-8">
+        
+        <!-- Post Header -->
+        <div class="space-y-4">
+            <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold border border-brand-500/30 uppercase tracking-widest inline-block" th:text="${articulo.categoria}">
+                Categoría
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-black text-white leading-tight" th:text="${articulo.titulo}">
+                Título del Artículo
+            </h1>
+            
+            <div class="flex items-center space-x-4 pt-2 border-t border-slate-800 text-xs text-slate-400">
+                <div class="flex items-center space-x-2">
+                    <img th:src="${articulo.autor.avatar}" class="w-8 h-8 rounded-full" alt="Autor">
+                    <div>
+                        <span class="font-bold text-slate-200 block" th:text="${articulo.autor.nombre}">Autor</span>
+                        <span class="text-[10px] text-slate-500">Docente e Instructor</span>
+                    </div>
+                </div>
+                <span>•</span>
+                <span th:text="${#temporals.format(articulo.fechaPublicacion, 'dd MMMM yyyy')}">08 Noviembre 2026</span>
+                <span>•</span>
+                <span th:text="${articulo.leidoMinutos} + ' min de lectura'">5 min</span>
+            </div>
+        </div>
+
+        <!-- Featured Image -->
+        <div class="rounded-3xl overflow-hidden border border-slate-800 shadow-2xl h-80 sm:h-96">
+            <img th:src="${articulo.imagenUrl}" class="w-full h-full object-cover" alt="Portada">
+        </div>
+
+        <!-- Article Content -->
+        <article class="bg-slate-950 p-8 sm:p-12 rounded-3xl border border-slate-800 shadow-xl prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed whitespace-pre-line" th:text="${articulo.contenido}">
+            Contenido completo del post educativo...
+        </article>
+
+        <!-- Other articles preview -->
+        <div class="pt-8 border-t border-slate-800">
+            <h3 class="text-lg font-bold text-white mb-4">Otros Artículos Recomendados</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div th:each="o : ${otrosArticulos}" th:if="${o.id != articulo.id}" class="p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-brand-500/40 transition">
+                    <a th:href="@{'/blog/' + ${o.id}}" class="font-bold text-xs text-white hover:text-brand-400 transition block truncate" th:text="${o.titulo}">
+                        Título del otro post
+                    </a>
+                    <span class="text-[10px] text-slate-500 mt-1 block" th:text="${o.categoria}">Categoría</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

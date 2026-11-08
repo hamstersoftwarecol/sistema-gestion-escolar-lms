@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Educativo & Novedades | LMS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation -->
+    <header class="bg-slate-950 border-b border-slate-800 h-16 px-6 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center space-x-4">
+            <a th:href="@{/lms}" class="text-sm text-slate-400 hover:text-white transition flex items-center space-x-2">
+                <i class="fa-solid fa-graduation-cap text-brand-500"></i>
+                <span class="font-bold text-white">Academia LMS</span>
+            </a>
+            <span class="text-slate-600">/</span>
+            <span class="text-xs font-bold text-slate-300">Blog &amp; Recursos</span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a th:href="@{/lms}" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+                Catálogo de Cursos
+            </a>
+            <button onclick="document.getElementById('modalCrearPost').classList.remove('hidden')"
+                    class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-lg shadow-brand-600/30 transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Publicar Artículo</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-12 px-6 max-w-6xl mx-auto w-full text-center">
+        <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-extrabold border border-brand-500/30 uppercase tracking-widest inline-block mb-3">
+            Artículos, Guías &amp; Tutoriales
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight">Blog Oficial de la Academia</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-xl mx-auto">
+            Aprende sobre desarrollo de software, ciencia de datos, arquitectura cloud y las mejores metodologías de estudio digital.
+        </p>
+    </section>
+
+    <!-- Articles Grid -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-6 pb-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="a : ${articulos}" class="bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 hover:border-brand-500/40 transition group flex flex-col justify-between shadow-xl">
+                <div>
+                    <div class="relative h-48 overflow-hidden bg-slate-900">
+                        <img th:src="${a.imagenUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Post">
+                        <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900/90 text-brand-300 border border-slate-700" th:text="${a.categoria}">
+                            Categoría
+                        </span>
+                    </div>
+
+                    <div class="p-6 space-y-3">
+                        <div class="flex items-center space-x-2 text-[11px] text-slate-500">
+                            <span th:text="${#temporals.format(a.fechaPublicacion, 'dd/MM/yyyy')}">08/11/2026</span>
+                            <span>•</span>
+                            <span th:text="${a.leidoMinutos} + ' min de lectura'">5 min</span>
+                        </div>
+                        <h2 class="text-base font-extrabold text-white group-hover:text-brand-400 transition line-clamp-2" th:text="${a.titulo}">
+                            Título del Artículo
+                        </h2>
+                        <p class="text-xs text-slate-400 line-clamp-3 leading-relaxed" th:text="${a.resumen}">
+                            Resumen explicativo del post para el lector...
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-0 border-t border-slate-800/60 mt-3 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <img th:src="${a.autor.avatar}" class="w-6 h-6 rounded-full" alt="Autor">
+                        <span class="text-xs font-bold text-slate-300" th:text="${a.autor.nombre}">Autor</span>
+                    </div>
+                    <a th:href="@{'/blog/' + ${a.id}}" class="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center space-x-1">
+                        <span>Leer más</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Publicar Artículo -->
+    <div id="modalCrearPost" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-950 rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-slate-800 shadow-2xl relative">
+            <button onclick="document.getElementById('modalCrearPost').classList.add('hidden')" class="absolute top-6 right-6 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-1">Publicar Nuevo Artículo en el Blog</h3>
+            <p class="text-xs text-slate-400 mb-6">Comparte conocimientos y tutoriales con toda la comunidad estudiantil.</p>
+
+            <form th:action="@{/blog/crear}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Título del Artículo</label>
+                    <input type="text" name="titulo" placeholder="Ej: Fundamentos de Spring Security 6 y JWT" required
+                           class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Categoría</label>
+                        <select name="categoria" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                            <option value="Desarrollo de Software">Desarrollo de Software</option>
+                            <option value="Inteligencia Artificial">Inteligencia Artificial</option>
+                            <option value="Diseño UX/UI">Diseño UX/UI</option>
+                            <option value="Carrera Profesional">Carrera Profesional</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Tiempo de Lectura (min)</label>
+                        <input type="number" name="leidoMinutos" value="5" min="1"
+                               class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Resumen / Subtítulo</label>
+                    <input type="text" name="resumen" placeholder="Breve introducción para la tarjeta..." required
+                           class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">URL de Imagen de Portada</label>
+                    <input type="text" name="imagenUrl" value="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80"
+                           class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Contenido Completo del Artículo</label>
+                    <textarea name="contenido" rows="4" placeholder="Escribe tu artículo aquí..." required
+                              class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition">
+                    Publicar Artículo Ahora
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

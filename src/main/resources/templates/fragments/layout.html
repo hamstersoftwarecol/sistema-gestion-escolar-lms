@@ -99,16 +99,40 @@
                             <span class="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">Vender</span>
                         </a>
 
+                        <!-- Lista de Deseos -->
+                        <a href="/lms/wishlist" th:class="${activeTab == 'lms_wishlist'} ? 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20 transition' : 'flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition font-medium'">
+                            <i class="fa-solid fa-heart w-5 text-center text-rose-400"></i>
+                            <span class="text-sm">Lista de Deseos</span>
+                        </a>
+
+                        <!-- Blog Integrado -->
+                        <a href="/blog" th:class="${activeTab == 'blog'} ? 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20 transition' : 'flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition font-medium'">
+                            <i class="fa-solid fa-newspaper w-5 text-center text-cyan-400"></i>
+                            <span class="text-sm">Blog de la Academia</span>
+                        </a>
+
                         <!-- Creador de Cursos / Panel Instructor -->
                         <a sec:authorize="hasAnyRole('PROFESOR', 'ADMIN')" href="/lms/instructor" th:class="${activeTab == 'lms_instructor'} ? 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20 transition' : 'flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition font-medium'">
                             <i class="fa-solid fa-wand-magic-sparkles w-5 text-center text-amber-400"></i>
                             <span class="text-sm">Creador de Cursos</span>
                         </a>
 
+                        <!-- Gestor de Medios (Instructor / Admin) -->
+                        <a sec:authorize="hasAnyRole('PROFESOR', 'ADMIN')" href="/lms/medios" th:class="${activeTab == 'lms_medios'} ? 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20 transition' : 'flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition font-medium'">
+                            <i class="fa-solid fa-photo-film w-5 text-center text-emerald-400"></i>
+                            <span class="text-sm">Gestor de Medios</span>
+                        </a>
+
                         <!-- Configuración de Marca y Academia (Admin) -->
                         <a sec:authorize="hasRole('ADMIN')" href="/lms/configuracion" th:class="${activeTab == 'lms_config'} ? 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20 transition' : 'flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition font-medium'">
                             <i class="fa-solid fa-sliders w-5 text-center text-purple-400"></i>
                             <span class="text-sm">Marca & Configuración</span>
+                        </a>
+
+                        <!-- Asistente de Instalador -->
+                        <a href="/instalador" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition font-medium">
+                            <i class="fa-solid fa-screwdriver-wrench w-5 text-center text-pink-400"></i>
+                            <span class="text-sm">Asistente Instalador</span>
                         </a>
                     </nav>
                 </div>
@@ -238,5 +262,47 @@
         </div>
     </div>
 
+    <!-- AVISO DE COOKIES (Cookie Consent Banner) -->
+    <div id="cookieConsentBanner" class="hidden fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md bg-slate-950/95 backdrop-blur-md border border-slate-700 p-5 rounded-3xl shadow-2xl z-50 animate-fade-in text-xs text-slate-300">
+        <div class="flex items-start space-x-3 mb-3">
+            <span class="text-2xl">🍪</span>
+            <div>
+                <h4 class="font-black text-white text-sm">Política de Cookies &amp; Privacidad</h4>
+                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    Utilizamos cookies para garantizar la mejor experiencia, guardar tu progreso de lecciones y recordar tu sesión de forma segura. Consulta nuestra
+                    <a href="/paginas/privacidad" class="underline text-brand-400 hover:text-brand-300">Política de Privacidad</a>.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-800">
+            <button onclick="rechazarCookies()" class="px-3 py-1.5 rounded-xl border border-slate-700 text-[11px] font-bold text-slate-400 hover:text-white transition">
+                Solo Necesarias
+            </button>
+            <button onclick="aceptarCookies()" class="px-4 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-[11px] font-bold text-white transition shadow-lg shadow-brand-600/30">
+                Aceptar Todas
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!localStorage.getItem('cookieConsentGiven')) {
+                const banner = document.getElementById('cookieConsentBanner');
+                if (banner) banner.classList.remove('hidden');
+            }
+        });
+
+        function aceptarCookies() {
+            localStorage.setItem('cookieConsentGiven', 'true');
+            const banner = document.getElementById('cookieConsentBanner');
+            if (banner) banner.classList.add('hidden');
+        }
+
+        function rechazarCookies() {
+            localStorage.setItem('cookieConsentGiven', 'necessary_only');
+            const banner = document.getElementById('cookieConsentBanner');
+            if (banner) banner.classList.add('hidden');
+        }
+    </script>
 </body>
 </html>

@@ -36,11 +36,11 @@ public class SecurityConfig {
             )
             // Middleware de Control de Acceso basado en Roles y Permisos (RBAC)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/access-denied", "/h2-console/**", "/css/**", "/js/**", "/images/**").permitAll()
-                // Catálogo y vista previa pública del LMS
-                .requestMatchers("/lms", "/lms/curso/**").permitAll()
-                // Creador de cursos e instructor LMS
-                .requestMatchers("/lms/instructor/**").hasAnyRole("PROFESOR", "ADMIN")
+                .requestMatchers("/login", "/login/oauth2/**", "/access-denied", "/h2-console/**", "/css/**", "/js/**", "/images/**").permitAll()
+                // Catálogo, Blog público, Páginas dinámicas y Asistente de instalación
+                .requestMatchers("/lms", "/lms/curso/**", "/blog/**", "/paginas/**", "/instalador/**").permitAll()
+                // Creador de cursos, gestor de medios e instructor LMS
+                .requestMatchers("/lms/instructor/**", "/lms/medios/**").hasAnyRole("PROFESOR", "ADMIN")
                 // Configuración de Marca y Academia
                 .requestMatchers("/lms/configuracion/**").hasRole("ADMIN")
                 // Módulos administrativos tradicionales

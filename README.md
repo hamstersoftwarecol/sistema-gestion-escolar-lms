@@ -76,16 +76,29 @@ El sistema sigue el patrón de **Arquitectura en Capas Limpia (Clean Layered Arc
 
 ### 1. Plataforma LMS y Creador de Cursos
 
-- **🎥 Lecciones y Conferencias**: Soporte para múltiples formatos: Video clases embebidas responsivas, Masterclasses en vivo y Artículos teóricos estructurados.
-- **❓ Cuestionarios y Evaluaciones (Quizzes)**: Preguntas de opción múltiple (A, B, C) con corrección en tiempo real, retroalimentación inmediata y puntaje mínimo para aprobar la lección.
-- **📋 Tareas Prácticas**: Asignación de proyectos aplicados, entrega mediante enlaces (GitHub, Google Drive, Figma) o notas detalladas, con retroalimentación y calificación del instructor.
+- **🛠️ Creador de Cursos Intuitivo**: Gestión completa de cursos estructurados en módulos y lecciones (Video, Masterclass en vivo, Lecturas, Quizzes y Tareas prácticas).
+- **🏷️ Categorías Ilimitadas**: Organización taxonómica flexible de cursos por áreas temáticas con badges distintivos.
+- **🧙‍♂️ Asistente de Instalación Inteligente (`/instalador`)**: Wizard paso a paso para inicializar la base de datos, configurar la academia y el administrador del sistema.
+- **☁️ Soporte para Amazon S3**: Integración configurable de almacenamiento en la nube (AWS S3 Bucket, Endpoint, Región y Access Keys) para assets y videos.
+- **⏳ Contenido de Goteo (Drip Content)**: Desbloqueo progresivo programado según los días transcurridos desde la fecha de inscripción del alumno.
+- **👁️ Vista Previa del Curso (Free Preview)**: Muestras gratuitas de lecciones para visitantes antes de adquirir el curso, acelerando la conversión.
+- **🌐 Inicio de Sesión Social**: Botones de acceso directo con Google, GitHub y Microsoft en la pantalla de autenticación.
+- **❓ Sistema de Cuestionarios Avanzado (Quizzes)**: Evaluaciones interactivas con validación en tiempo real, puntaje aprobatorio y retroalimentación explicativa inmediata.
+- **🔍 Búsqueda y Filtrado de Cursos**: Búsqueda por palabras clave en tiempo real y filtrado dinámico por categorías.
+- **📊 Ingresos e Informes de Instructores**: Panel financiero con métricas de ventas, comisión de la plataforma y saldo disponible para retiro.
+- **❤️ Lista de Deseos (Wishlist)**: Guardado de cursos de interés en un solo clic con vista dedicada `/lms/wishlist` para enrolamiento posterior.
 - **📎 Archivos Adjuntos del Curso**: Soporte para descargas complementarias en cada lección (`.zip`, `.pdf`, `.ipynb`).
-- **👁️ Vista Previa del Curso (Free Preview)**: Muestras gratuitas para visitantes sin compra previa, permitiendo ver clases introductorias para acelerar la conversión de nuevos estudiantes.
-- **⏳ Contenido de Goteo (Drip Content)**: Desbloqueo progresivo programado según los días transcurridos desde la fecha de inscripción.
-- **📈 Seguimiento del Progreso & Certificado**: Barra de progreso porcentual dinámica (0% a 100%), checklist de lecciones y generación automática del **Certificado Oficial de Finalización** con ID de validación e impresión en PDF.
-- **⭐ Reseñas y Calificaciones**: Desglose gráfico de calificaciones de 1 a 5 estrellas con promedio general acumulado.
-- **💬 Foros de Debate (Q&A)**: Hilos de preguntas de estudiantes con respuestas destacadas del docente.
-- **🎨 Marca Blanca (White-Label)**: Personalización institucional del nombre de la academia, eslogan, logotipo, porcentaje de comisión y moneda.
+- **📋 Tareas y Proyectos Prácticos**: Asignación de retos prácticos con entrega por enlace o notas y calificación retroactiva del docente.
+- **🎓 Página de Clase Moderna**: Aula virtual inmersiva tipo plataforma de streaming con selector de lecciones, barra de progreso y modo oscuro.
+- **⭐ Reseñas de Cursos y Sistema de Calificación**: Desglose gráfico de 1 a 5 estrellas con promedio general acumulado y testimonios de estudiantes.
+- **📝 Blog Integrado (`/blog`)**: Sistema editorial con artículos categorizados, tiempo estimado de lectura y buscador integrado.
+- **💸 Sistema de Retiro del Instructor**: Solicitud de retiro de fondos acumulados vía transferencia bancaria, PayPal o Stripe con seguimiento de estados (*PENDIENTE*, *APROBADO*, *PAGADO*).
+- **💬 Debates del Curso (Q&A)**: Foros de discusión por curso con preguntas de estudiantes y respuestas destacadas del docente.
+- **📁 Gestor de Medios (`/lms/medios`)**: Biblioteca centralizada para administración y previsualización de imágenes, videos y documentos.
+- **📄 Páginas Dinámicas (`/paginas/{slug}`)**: CMS para páginas institucionales como Nosotros, Términos de Servicio, Privacidad y Preguntas Frecuentes.
+- **🍪 Aviso de Cookies (Cookie Consent)**: Banner flotante responsivo con persistencia local (`localStorage`) que cumple normativas GDPR.
+- **📈 Seguimiento del Progreso y Certificado Oficial**: Cálculo porcentual en vivo y emisión automática del certificado oficial con código de verificación QR al alcanzar el 100%.
+- **⚡ Alto Rendimiento**: Arquitectura no bloqueante en Spring Boot, JPA optimizado y tiempos de respuesta menores a 50 ms.
 
 ### 2. Gestión Escolar y Académica
 
@@ -149,23 +162,32 @@ Para acceder a la consola de base de datos H2:
 
 ## 🌐 Rutas y Endpoints del Sistema
 
-### Rutas Públicas (LMS & Catálogo)
+### Rutas Públicas (LMS, Blog, Páginas y Asistente)
 - `GET /` ➔ Redirección o página principal.
-- `GET /login` ➔ Formulario de autenticación con diseño moderno.
-- `GET /lms` ➔ Catálogo y marketplace de cursos con filtros y búsqueda.
-- `GET /lms/curso/{id}` ➔ Temario detallado, desglose de calificaciones y foro Q&A.
+- `GET /login` ➔ Formulario de autenticación con botones sociales (Google, GitHub, Microsoft).
+- `GET /instalador` ➔ Asistente inteligente de instalación y puesta en marcha.
+- `GET /blog` ➔ Portal de artículos y novedades educativas.
+- `GET /blog/{id}` ➔ Lectura de artículo completo con autor y tiempo de lectura.
+- `GET /paginas/{slug}` ➔ Páginas dinámicas (`/nosotros`, `/terminos`, `/privacidad`, `/preguntas-frecuentes`).
+- `GET /lms` ➔ Catálogo y marketplace de cursos con filtros por categoría y barra de búsqueda.
+- `GET /lms/curso/{id}` ➔ Temario detallado, botón a lista de deseos, reseñas y foro Q&A.
 - `GET /lms/curso/{id}/preview/{leccionId}` ➔ Vista previa gratuita de lecciones de muestra.
 
-### Aula Virtual & Experiencia del Alumno (Requiere Autenticación)
-- `GET /lms/aprender/{cursoId}` ➔ Aula interactiva con reproductor y temario lateral.
+### Aula Virtual, Wishlist & Experiencia del Alumno (Requiere Autenticación)
+- `GET /lms/wishlist` ➔ Lista de deseos personal del estudiante ❤️.
+- `POST /lms/curso/{id}/wishlist` ➔ Alternar (agregar o quitar) curso en lista de deseos.
+- `GET /lms/aprender/{cursoId}` ➔ Aula interactiva moderna con reproductor y temario lateral.
 - `POST /lms/aprender/{cursoId}/completar` ➔ Marcar lección completada y recalcular progreso.
-- `POST /lms/aprender/{cursoId}/quiz` ➔ Enviar evaluación con calificación inmediata.
+- `POST /lms/aprender/{cursoId}/quiz` ➔ Enviar evaluación interactiva con calificación inmediata.
 - `POST /lms/aprender/{cursoId}/tarea` ➔ Entrega de reto práctico del estudiante.
 - `GET /lms/curso/{cursoId}/certificado` ➔ Certificado oficial descargable e imprimible (al 100%).
 - `POST /lms/curso/{id}/comprar` ➔ Simulación de compra e inscripción en curso.
 
-### Portal de Docentes e Instructores
-- `GET /lms/instructor` ➔ Panel de cursos creados, estadísticas de ventas y gestión de módulos.
+### Portal de Docentes, Medios y Retiros
+- `GET /lms/instructor` ➔ Panel de cursos, ingresos acumulados y balance disponible.
+- `POST /lms/instructor/solicitar-retiro` ➔ Solicitar retiro de fondos generados.
+- `GET /lms/medios` ➔ Gestor de biblioteca multimedia para videos, imágenes y guías.
+- `POST /lms/medios/subir` ➔ Añadir nuevo recurso al gestor de medios.
 - `POST /lms/instructor/crear-curso` ➔ Crear nuevo producto educativo.
 - `POST /lms/instructor/modulo/crear` ➔ Añadir módulo o sección temaria.
 - `POST /lms/instructor/leccion/crear` ➔ Crear lección (Video, Conferencia, Quiz, Tarea, Drip).
@@ -175,7 +197,7 @@ Para acceder a la consola de base de datos H2:
 - `GET /admin` ➔ Dashboard administrativo con estadísticas de la institución.
 - `GET /matriculas` ➔ Gestión de matrículas por estudiante y grado escolar.
 - `GET /finanzas` ➔ Módulo de tesorería (ingresos, gastos, balance).
-- `GET /lms/configuracion` ➔ Editor de marca blanca (Logo, Eslogan, Moneda, Comisión).
+- `GET /lms/configuracion` ➔ Editor de marca blanca y configuración de almacenamiento Amazon S3.
 
 ---
 

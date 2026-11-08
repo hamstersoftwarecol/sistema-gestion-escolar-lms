@@ -265,7 +265,7 @@
                         </div>
 
                         <!-- Action Button: Entrar al Aula o Inscribirse -->
-                        <div class="mb-6">
+                        <div class="mb-4 space-y-2">
                             <a th:if="${estaInscrito}" th:href="@{'/lms/aprender/' + ${curso.id}}"
                                class="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm transition shadow-lg shadow-emerald-600/25 flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-play"></i>
@@ -277,6 +277,14 @@
                                 <i class="fa-solid fa-bolt"></i>
                                 <span>Inscribirme y Empezar Ya</span>
                             </button>
+
+                            <!-- Wishlist Toggle -->
+                            <form th:action="@{'/lms/curso/' + ${curso.id} + '/wishlist'}" method="post">
+                                <button type="submit" th:class="${enWishlist} ? 'w-full py-2 px-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 font-bold text-xs flex items-center justify-center space-x-2 transition' : 'w-full py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center space-x-2 transition'">
+                                    <i th:class="${enWishlist} ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'"></i>
+                                    <span th:text="${enWishlist} ? 'En tu Lista de Deseos' : 'Añadir a Lista de Deseos'">Añadir a Lista de Deseos</span>
+                                </button>
+                            </form>
                         </div>
 
                         <!-- Features Checklist -->

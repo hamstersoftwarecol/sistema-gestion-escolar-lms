@@ -76,7 +76,15 @@
                         <div class="relative h-48 overflow-hidden bg-slate-900">
                             <img th:src="${c.imagenUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="Cover">
                             <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-[11px] font-bold text-white uppercase tracking-wider" th:text="${c.categoria}">Categoría</span>
-                            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-white/90 text-slate-800 text-[10px] font-extrabold" th:text="${c.nivel}">Intermedio</span>
+                            <div class="absolute top-3 right-3 flex items-center space-x-1.5">
+                                <span class="px-2 py-0.5 rounded-md bg-white/90 text-slate-800 text-[10px] font-extrabold" th:text="${c.nivel}">Intermedio</span>
+                                <!-- Wishlist Heart Button -->
+                                <form th:action="@{'/lms/curso/' + ${c.id} + '/wishlist'}" method="post">
+                                    <button type="submit" class="w-7 h-7 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-rose-600 text-white flex items-center justify-center transition shadow text-xs" title="Añadir a lista de deseos">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
 
                         <!-- Card Content -->

@@ -63,10 +63,13 @@ public class LmsController {
         model.addAttribute("config", lmsService.obtenerConfiguracionAcademia());
 
         boolean inscrito = false;
+        boolean enWishlist = false;
         if (principal != null) {
             inscrito = lmsService.estaInscrito(principal.getId(), id);
+            enWishlist = lmsService.estaEnWishlist(principal.getId(), id);
         }
         model.addAttribute("estaInscrito", inscrito);
+        model.addAttribute("enWishlist", enWishlist);
 
         return "lms/detalle";
     }
@@ -446,5 +449,86 @@ public class LmsController {
             redirectAttributes.addFlashAttribute("mensajeError", e.getMessage());
         }
         return "redirect:/lms/configuracion";
+    }
+
+    // 9. Wishlist / Lista de Deseos
+    @PostMapping("/curso/{id}/wishlist")
+    public String toggleWishlist(@PathVariable Long id,
+                                 @AuthenticationPrincipal UsuarioPrincipal principal,
+                                 RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+        try {
+            boolean agregado = lmsService.toggleWishlist(principal.getId(), id);
+            if (agregado) {
+                redirectAttributes.addFlashAttribute("mensajeExito", "Curso agregado a tu Lista de Deseos ❤️");
+            } else {
+                redirectAttributes.addFlashAttribute("mensajeExito", "Curso eliminado de tu Lista de Deseos.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", e.getMessage());
+        }
+        return "redirect:/lms/curso/" + id;
+    }
+
+    @GetMapping("/wishlist")
+    public String verWishlist(@AuthenticationPrincipal UsuarioPrincipal principal, Model model) {
+        if (principal == null) return "redirect:/login";
+        model.addAttribute("wishlist", lmsService.listarWishlistDeUsuario(principal.getId()));
+        model.addAttribute("config", lmsService.obtenerConfiguracionAcademia());
+        return "lms/wishlist";
+    }
+
+    // 10. Sistema de Retiro del Instructor
+    @PostMapping("/instructor/solicitar-retiro")
+    public String solicitarRetiro(@RequestParam Double monto,
+                                  @RequestParam String metodoPago,
+                                  @RequestParam String detallesCuenta,
+                                  @AuthenticationPrincipal UsuarioPrincipal principal,
+                                  RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+        try {
+            lmsService.solicitarRetiro(principal.getId(), monto, metodoPago, detallesCuenta);
+            redirectAttributes.addFlashAttribute("mensajeExito", "Solicitud de retiro enviada correctamente. El administrador la procesará a la brevedad.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", "Error al procesar el retiro: " + e.getMessage());
+        }
+        return "redirect:/lms/instructor";
+    }
+
+    @PostMapping("/admin/retiro/{id}/procesar")
+    public String procesarRetiroAdmin(@PathVariable Long id,
+                                      @RequestParam String nuevoEstado,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            lmsService.procesarRetiro(id, nuevoEstado);
+            redirectAttributes.addFlashAttribute("mensajeExito", "Estado de la solicitud de retiro actualizado a " + nuevoEstado + ".");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", e.getMessage());
+        }
+        return "redirect:/lms/instructor";
+    }
+
+    // 11. Gestor de Medios (Media Manager)
+    @GetMapping("/medios")
+    public String gestorMedios(Model model) {
+        model.addAttribute("medios", lmsService.listarArchivosMedia());
+        model.addAttribute("config", lmsService.obtenerConfiguracionAcademia());
+        return "lms/medios";
+    }
+
+    @PostMapping("/medios/subir")
+    public String registrarMedio(@RequestParam String nombre,
+                                 @RequestParam String tipo,
+                                 @RequestParam String url,
+                                 @RequestParam(defaultValue = "150") Long tamanoKb,
+                                 @AuthenticationPrincipal UsuarioPrincipal principal,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            lmsService.registrarArchivoMedia(nombre, tipo, url, tamanoKb, principal != null ? principal.getId() : null);
+            redirectAttributes.addFlashAttribute("mensajeExito", "Archivo registrado exitosamente en el Gestor de Medios.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensajeError", e.getMessage());
+        }
+        return "redirect:/lms/medios";
     }
 }

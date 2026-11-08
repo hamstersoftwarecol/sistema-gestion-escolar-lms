@@ -32,7 +32,12 @@ public class DataLoader {
             LmsResenaRepository lmsResenaRepo,
             LmsDebateRepository lmsDebateRepo,
             LmsAcademiaConfigRepository lmsAcademiaConfigRepo,
-            LmsTareaEntregaRepository lmsTareaEntregaRepo
+            LmsTareaEntregaRepository lmsTareaEntregaRepo,
+            LmsWishlistRepository lmsWishlistRepo,
+            LmsRetiroInstructorRepository lmsRetiroRepo,
+            LmsArticuloBlogRepository lmsBlogRepo,
+            LmsPaginaDinamicaRepository lmsPaginaRepo,
+            LmsArchivoMediaRepository lmsMediaRepo
     ) {
         return args -> {
             if (usuarioRepo.count() > 0) return;
@@ -242,6 +247,81 @@ public class DataLoader {
                 d.setFechaRespuesta(LocalDateTime.now());
                 lmsDebateRepo.save(d);
             });
+
+            // 11. Lista de Deseos (Wishlist)
+            lmsWishlistRepo.save(new LmsWishlist(est1, lms2));
+
+            // 12. Retiros de Instructores
+            lmsRetiroRepo.save(new LmsRetiroInstructor(prof1, 50.0, "PayPal", "roberto.gomez@paypal.me"));
+
+            // 13. Blog Integrado
+            lmsBlogRepo.saveAll(List.of(
+                    new LmsArticuloBlog(
+                            "Las 7 Mejores Prácticas para Construir Microservicios Resilientes con Spring Boot 4",
+                            "mejores-practicas-microservicios-spring-boot",
+                            "Aprende patrones esenciales de circuit breaker, inyección de dependencias y balanceo de carga para entornos de producción.",
+                            "El desarrollo de sistemas distribuidos requiere considerar la tolerancia a fallos desde el primer día. En este artículo analizamos cómo Spring Boot 4 y Spring Cloud simplifican la arquitectura de microservicios...",
+                            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
+                            prof1,
+                            "Desarrollo de Software",
+                            6
+                    ),
+                    new LmsArticuloBlog(
+                            "Cómo la Inteligencia Artificial Generativa está Transformando la Educación Online",
+                            "ia-generativa-transformando-educacion",
+                            "Explora cómo los tutores virtuales y la generación automática de cuestionarios aumentan la retención estudiantil en un 40%.",
+                            "La educación personalizada ya no es una promesa del futuro. Con modelos de lenguaje avanzados, cada estudiante puede recibir explicaciones adaptadas a su ritmo de aprendizaje...",
+                            "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80",
+                            prof3,
+                            "Inteligencia Artificial",
+                            4
+                    ),
+                    new LmsArticuloBlog(
+                            "Sistemas de Diseño en Figma: Del Prototipo al Código Limpio",
+                            "sistemas-de-diseno-figma-a-codigo",
+                            "Estrategias para diseñadores y desarrolladores front-end para sincronizar tokens de diseño y componentes en Tailwind CSS.",
+                            "Un sistema de diseño exitoso es el puente de comunicación entre diseñadores UI y desarrolladores de software. Descubre cómo definir variables, colores y tipografías consistentes...",
+                            "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80",
+                            prof2,
+                            "Diseño UX/UI",
+                            5
+                    )
+            ));
+
+            // 14. Páginas Dinámicas (CMS)
+            lmsPaginaRepo.saveAll(List.of(
+                    new LmsPaginaDinamica(
+                            "nosotros",
+                            "Acerca de Nuestra Academia & Misión",
+                            "Somos una institución dedicada a democratizar la educación tecnológica y escolar de la más alta calidad en Latinoamérica. Combinamos la calidez pedagógica con las herramientas digitales más modernas de la industria.",
+                            "fa-graduation-cap"
+                    ),
+                    new LmsPaginaDinamica(
+                            "terminos",
+                            "Términos y Condiciones del Servicio",
+                            "Al utilizar nuestra plataforma educativa, aceptas nuestras condiciones de uso ético, derechos de autor sobre las clases y cursos adquiridos, y políticas de certificación.",
+                            "fa-scale-balanced"
+                    ),
+                    new LmsPaginaDinamica(
+                            "privacidad",
+                            "Política de Privacidad y Cookies",
+                            "Respetamos tu privacidad. Tus datos personales y de progreso académico están resguardados con cifrado estándar de la industria y nunca serán comercializados.",
+                            "fa-shield-halved"
+                    ),
+                    new LmsPaginaDinamica(
+                            "preguntas-frecuentes",
+                            "Preguntas Frecuentes (FAQ)",
+                            "¿Cómo obtengo mi certificado? Al completar el 100% de las lecciones, cuestionarios y tareas, tu certificado oficial estará disponible de forma inmediata en tu aula virtual.",
+                            "fa-circle-question"
+                    )
+            ));
+
+            // 15. Gestor de Medios Inicial
+            lmsMediaRepo.saveAll(List.of(
+                    new LmsArchivoMedia("banner-promocional-spring.png", "IMAGEN", "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800", 320L, prof1),
+                    new LmsArchivoMedia("guia-entidad-relacion-jpa.pdf", "DOCUMENTO", "https://spring.io", 540L, prof1),
+                    new LmsArchivoMedia("masterclass-figma-tokens.mp4", "VIDEO", "https://www.youtube.com/embed/dQw4w9WgXcQ", 12500L, prof2)
+            ));
         };
     }
 }

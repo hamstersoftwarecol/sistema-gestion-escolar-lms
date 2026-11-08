@@ -93,6 +93,30 @@
             </button>
         </form>
 
+        <!-- Inicio de Sesión Social (Social Login) -->
+        <div class="mt-6 pt-5 border-t border-slate-100">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center mb-3">O continúa con Inicio de Sesión Social</p>
+            <div class="space-y-2">
+                <button type="button" onclick="fillAndSubmit('santiago.gomez@estudiante.edu', 'est123')"
+                        class="w-full py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-google text-rose-500 text-sm"></i>
+                    <span>Continuar con Google</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="fillAndSubmit('roberto.gomez@colegio.edu', 'prof123')"
+                            class="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center space-x-1.5">
+                        <i class="fa-brands fa-github text-slate-900 text-sm"></i>
+                        <span>GitHub</span>
+                    </button>
+                    <button type="button" onclick="fillAndSubmit('admin@colegio.edu', 'admin123')"
+                            class="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center space-x-1.5">
+                        <i class="fa-brands fa-microsoft text-blue-500 text-sm"></i>
+                        <span>Microsoft</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Acceso Rápido / Roles Demo -->
         <div class="mt-8 pt-6 border-t border-slate-100">
             <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center mb-3">Acceso Rápido con 1 Clic (Roles Demo)</p>

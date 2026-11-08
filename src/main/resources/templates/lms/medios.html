@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Medios & Multimedia | LMS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation -->
+    <header class="bg-slate-950 border-b border-slate-800 h-16 px-6 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center space-x-4">
+            <a th:href="@{/lms/instructor}" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Volver a Instructor
+            </a>
+            <h1 class="text-base font-bold text-white flex items-center">
+                <i class="fa-solid fa-photo-film text-brand-400 mr-2"></i> Gestor de Medios &amp; Archivos
+            </h1>
+        </div>
+
+        <button onclick="document.getElementById('modalSubirMedio').classList.remove('hidden')"
+                class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition flex items-center space-x-1.5 shadow-lg shadow-brand-600/30">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Registrar Archivo</span>
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 sm:p-10 space-y-6">
+
+        <!-- Amazon S3 Storage Status Banner -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+                    <i class="fa-brands fa-aws"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-white block">Almacenamiento Cloud: Amazon S3</span>
+                    <span class="text-slate-400 text-[11px]">Bucket: <strong class="text-slate-200" th:text="${config.s3BucketName}">eduacademy-lms-storage</strong> | Región: <span th:text="${config.s3Region}">us-east-1</span></span>
+                </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                <i class="fa-solid fa-circle-check mr-1"></i> S3 Conectado
+            </span>
+        </div>
+
+        <!-- Files Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="m : ${medios}" class="bg-slate-950 rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span th:if="${m.tipo == 'IMAGEN'}" class="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 text-[10px] font-bold">
+                            <i class="fa-solid fa-image mr-1"></i> Imagen
+                        </span>
+                        <span th:if="${m.tipo == 'DOCUMENTO'}" class="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                            <i class="fa-solid fa-file-pdf mr-1"></i> Documento
+                        </span>
+                        <span th:if="${m.tipo == 'VIDEO'}" class="px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 text-[10px] font-bold">
+                            <i class="fa-solid fa-video mr-1"></i> Video
+                        </span>
+                        <span class="text-[10px] text-slate-500" th:text="${m.tamanoKb} + ' KB'">320 KB</span>
+                    </div>
+
+                    <h4 class="font-bold text-sm text-white truncate" th:text="${m.nombre}">nombre-archivo.png</h4>
+                    <p class="text-[11px] text-slate-400 truncate mt-1" th:text="${m.url}">https://url-del-archivo...</p>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800/60 mt-4 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-500" th:text="${#temporals.format(m.fechaSubida, 'dd/MM/yyyy')}">08/11/2026</span>
+                    <a th:href="${m.url}" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-brand-300 transition flex items-center space-x-1">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        <span>Abrir</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Registrar Archivo -->
+    <div id="modalSubirMedio" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-950 rounded-3xl max-w-md w-full p-6 sm:p-8 border border-slate-800 shadow-2xl relative">
+            <button onclick="document.getElementById('modalSubirMedio').classList.add('hidden')" class="absolute top-6 right-6 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-1">Registrar Archivo / Medio</h3>
+            <p class="text-xs text-slate-400 mb-6">Guarda enlaces a imágenes, guías o videos en el gestor multimedia.</p>
+
+            <form th:action="@{/lms/medios/subir}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Archivo</label>
+                    <input type="text" name="nombre" placeholder="Ej: diagrama-arquitectura-spring.png" required
+                           class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Tipo de Medio</label>
+                    <select name="tipo" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                        <option value="IMAGEN">Imagen (PNG, JPG, SVG)</option>
+                        <option value="DOCUMENTO">Documento (PDF, ZIP, DOCX)</option>
+                        <option value="VIDEO">Video / Conferencia (MP4, YouTube)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">URL Pública o Bucket S3</label>
+                    <input type="text" name="url" placeholder="https://..." required
+                           class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Tamaño Estimado (KB)</label>
+                    <input type="number" name="tamanoKb" value="250"
+                           class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white outline-none">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition">
+                    Guardar en la Biblioteca
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

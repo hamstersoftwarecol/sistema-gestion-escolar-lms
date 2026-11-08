@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Lista de Deseos | LMS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-950 border-b border-slate-800 h-16 px-6 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center space-x-4">
+            <a th:href="@{/lms}" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Catálogo
+            </a>
+            <h1 class="text-base font-bold text-white flex items-center">
+                <i class="fa-solid fa-heart text-rose-500 mr-2"></i> Mi Lista de Deseos
+            </h1>
+        </div>
+        <div>
+            <a th:href="@{/estudiante}" class="text-xs font-semibold text-slate-400 hover:text-white transition">
+                Mi Portal de Estudiante
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 sm:p-10">
+
+        <div class="mb-8">
+            <h2 class="text-2xl font-black text-white">Cursos que te interesan</h2>
+            <p class="text-xs text-slate-400 mt-1">Guarda los cursos que deseas tomar más adelante e inscríbete cuando estés listo.</p>
+        </div>
+
+        <!-- Wishlist Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="w : ${wishlist}" class="bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 hover:border-brand-500/50 transition group flex flex-col justify-between">
+                <div>
+                    <div class="relative h-44 overflow-hidden bg-slate-900">
+                        <img th:src="${w.curso.imagenUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Curso">
+                        <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900/80 backdrop-blur-md text-brand-300 border border-slate-700" th:text="${w.curso.categoria}">
+                            Categoría
+                        </span>
+                    </div>
+
+                    <div class="p-5 space-y-3">
+                        <h3 class="font-extrabold text-sm text-white line-clamp-2" th:text="${w.curso.titulo}">Título del Curso</h3>
+                        <p class="text-xs text-slate-400 line-clamp-2" th:text="${w.curso.subtitulo}">Subtítulo</p>
+                        
+                        <div class="flex items-center space-x-2 text-xs text-slate-400">
+                            <img th:src="${w.curso.instructor.avatar}" class="w-5 h-5 rounded-full" alt="Avatar">
+                            <span th:text="${w.curso.instructor.nombre}">Instructor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-5 pt-0 border-t border-slate-800/60 mt-3 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] text-slate-500 block">Precio:</span>
+                        <span class="text-lg font-black text-emerald-400" th:text="(${config != null and config.simboloMoneda != null} ? ${config.simboloMoneda} : '$') + ${w.curso.precio}">$79.99</span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <!-- Remove from wishlist -->
+                        <form th:action="@{'/lms/curso/' + ${w.curso.id} + '/wishlist'}" method="post">
+                            <button type="submit" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 border border-slate-700 transition" title="Quitar de favoritos">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </form>
+
+                        <!-- Go to Course -->
+                        <a th:href="@{'/lms/curso/' + ${w.curso.id}}" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition">
+                            Ver Curso
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Wishlist -->
+        <div th:if="${#lists.isEmpty(wishlist)}" class="text-center py-20 bg-slate-950/60 rounded-3xl border border-dashed border-slate-800">
+            <div class="w-16 h-16 rounded-full bg-slate-900 text-slate-500 flex items-center justify-center text-2xl mx-auto mb-4">
+                <i class="fa-regular fa-heart"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1">Tu lista de deseos está vacía</h3>
+            <p class="text-xs text-slate-400 mb-6 max-w-sm mx-auto">Explora nuestro catálogo de cursos y haz clic en el corazón para guardarlos aquí.</p>
+            <a th:href="@{/lms}" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition">
+                Explorar Catálogo
+            </a>
+        </div>
+
+    </main>
+
+</body>
+</html>

@@ -23,6 +23,11 @@ public class LmsService {
     private final LmsDebateRepository debateRepository;
     private final LmsAcademiaConfigRepository academiaConfigRepository;
     private final LmsTareaEntregaRepository tareaEntregaRepository;
+    private final LmsWishlistRepository wishlistRepository;
+    private final LmsRetiroInstructorRepository retiroRepository;
+    private final LmsArticuloBlogRepository blogRepository;
+    private final LmsPaginaDinamicaRepository paginaRepository;
+    private final LmsArchivoMediaRepository mediaRepository;
     private final UsuarioRepository usuarioRepository;
 
     public LmsService(LmsCursoRepository cursoRepository,
@@ -34,6 +39,11 @@ public class LmsService {
                       LmsDebateRepository debateRepository,
                       LmsAcademiaConfigRepository academiaConfigRepository,
                       LmsTareaEntregaRepository tareaEntregaRepository,
+                      LmsWishlistRepository wishlistRepository,
+                      LmsRetiroInstructorRepository retiroRepository,
+                      LmsArticuloBlogRepository blogRepository,
+                      LmsPaginaDinamicaRepository paginaRepository,
+                      LmsArchivoMediaRepository mediaRepository,
                       UsuarioRepository usuarioRepository) {
         this.cursoRepository = cursoRepository;
         this.moduloRepository = moduloRepository;
@@ -44,6 +54,11 @@ public class LmsService {
         this.debateRepository = debateRepository;
         this.academiaConfigRepository = academiaConfigRepository;
         this.tareaEntregaRepository = tareaEntregaRepository;
+        this.wishlistRepository = wishlistRepository;
+        this.retiroRepository = retiroRepository;
+        this.blogRepository = blogRepository;
+        this.paginaRepository = paginaRepository;
+        this.mediaRepository = mediaRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -317,7 +332,108 @@ public class LmsService {
         return desglose;
     }
 
-    // 9. Estadísticas
+    // 9. Wishlist / Lista de Deseos
+    public boolean toggleWishlist(Long usuarioId, Long cursoId) {
+        if (wishlistRepository.existsByUsuarioIdAndCursoId(usuarioId, cursoId)) {
+            wishlistRepository.deleteByUsuarioIdAndCursoId(usuarioId, cursoId);
+            return false; // Quitado
+        } else {
+            Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow();
+            LmsCurso curso = cursoRepository.findById(cursoId).orElseThrow();
+            wishlistRepository.save(new LmsWishlist(usuario, curso));
+            return true; // Agregado
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean estaEnWishlist(Long usuarioId, Long cursoId) {
+        if (usuarioId == null) return false;
+        return wishlistRepository.existsByUsuarioIdAndCursoId(usuarioId, cursoId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LmsWishlist> listarWishlistDeUsuario(Long usuarioId) {
+        return wishlistRepository.findByUsuarioIdOrderByFechaAgregadoDesc(usuarioId);
+    }
+
+    // 10. Sistema de Retiro del Instructor
+    @Transactional(readOnly = true)
+    public Double calcularSaldoDisponibleInstructor(Long instructorId) {
+        Double ganancias = inscripcionRepository.sumarGananciasInstructor(instructorId);
+        if (ganancias == null) ganancias = 0.0;
+        Double retirosAprobados = retiroRepository.sumarRetirosAprobados(instructorId);
+        return Math.max(0.0, ganancias - retirosAprobados);
+    }
+
+    public LmsRetiroInstructor solicitarRetiro(Long instructorId, Double monto, String metodoPago, String detallesCuenta) {
+        Double saldoDisponible = calcularSaldoDisponibleInstructor(instructorId);
+        if (monto == null || monto <= 0 || monto > saldoDisponible) {
+            throw new IllegalArgumentException("El monto a retirar (" + monto + ") supera el saldo disponible (" + saldoDisponible + ").");
+        }
+        Usuario instructor = usuarioRepository.findById(instructorId).orElseThrow();
+        LmsRetiroInstructor retiro = new LmsRetiroInstructor(instructor, monto, metodoPago, detallesCuenta);
+        return retiroRepository.save(retiro);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LmsRetiroInstructor> listarRetirosInstructor(Long instructorId) {
+        return retiroRepository.findByInstructorIdOrderByFechaSolicitudDesc(instructorId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LmsRetiroInstructor> listarTodosRetiros() {
+        return retiroRepository.findAll();
+    }
+
+    public void procesarRetiro(Long retiroId, String nuevoEstado) {
+        retiroRepository.findById(retiroId).ifPresent(r -> {
+            r.setEstado(nuevoEstado);
+            r.setFechaProcesado(LocalDateTime.now());
+            retiroRepository.save(r);
+        });
+    }
+
+    // 11. Blog Integrado
+    @Transactional(readOnly = true)
+    public List<LmsArticuloBlog> listarArticulosBlog() {
+        return blogRepository.findByPublicadoTrueOrderByFechaPublicacionDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<LmsArticuloBlog> buscarArticuloPorId(Long id) {
+        return blogRepository.findById(id);
+    }
+
+    public LmsArticuloBlog crearArticuloBlog(String titulo, String resumen, String contenido, String imagenUrl, Long autorId, String categoria, Integer leidoMinutos) {
+        Usuario autor = usuarioRepository.findById(autorId).orElseThrow();
+        String slug = titulo.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        LmsArticuloBlog articulo = new LmsArticuloBlog(titulo, slug, resumen, contenido, imagenUrl, autor, categoria, leidoMinutos != null ? leidoMinutos : 5);
+        return blogRepository.save(articulo);
+    }
+
+    // 12. Páginas Dinámicas (CMS)
+    @Transactional(readOnly = true)
+    public Optional<LmsPaginaDinamica> buscarPaginaPorSlug(String slug) {
+        return paginaRepository.findBySlug(slug);
+    }
+
+    public LmsPaginaDinamica guardarPagina(LmsPaginaDinamica pagina) {
+        pagina.setFechaActualizacion(LocalDateTime.now());
+        return paginaRepository.save(pagina);
+    }
+
+    // 13. Gestor de Medios
+    @Transactional(readOnly = true)
+    public List<LmsArchivoMedia> listarArchivosMedia() {
+        return mediaRepository.findAllByOrderByFechaSubidaDesc();
+    }
+
+    public LmsArchivoMedia registrarArchivoMedia(String nombre, String tipo, String url, Long tamanoKb, Long usuarioId) {
+        Usuario usuario = usuarioId != null ? usuarioRepository.findById(usuarioId).orElse(null) : null;
+        return mediaRepository.save(new LmsArchivoMedia(nombre, tipo, url, tamanoKb != null ? tamanoKb : 100L, usuario));
+    }
+
+    // 14. Estadísticas
     @Transactional(readOnly = true)
     public Map<String, Object> obtenerEstadisticasInstructor(Long instructorId) {
         Map<String, Object> stats = new HashMap<>();
@@ -326,11 +442,14 @@ public class LmsService {
 
         Double gananciasTotales = inscripcionRepository.sumarGananciasInstructor(instructorId);
         if (gananciasTotales == null) gananciasTotales = 0.0;
+        Double saldoDisponible = calcularSaldoDisponibleInstructor(instructorId);
 
         stats.put("totalCursos", cursos.size());
         stats.put("totalEstudiantes", inscripciones.size());
         stats.put("gananciasTotales", gananciasTotales);
+        stats.put("saldoDisponible", saldoDisponible);
         stats.put("cursos", cursos);
+        stats.put("retiros", retiroRepository.findByInstructorIdOrderByFechaSolicitudDesc(instructorId));
         return stats;
     }
 
@@ -341,6 +460,7 @@ public class LmsService {
         stats.put("totalInscripciones", inscripcionRepository.count());
         Double ventas = inscripcionRepository.sumarVentasTotales();
         stats.put("ventasTotales", ventas != null ? ventas : 0.0);
+        stats.put("totalRetirosPendientes", retiroRepository.findByEstadoOrderByFechaSolicitudDesc("PENDIENTE").size());
         return stats;
     }
 }

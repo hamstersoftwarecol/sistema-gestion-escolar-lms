@@ -26,6 +26,13 @@ public class LmsAcademiaConfig {
 
     private boolean inscripcionesAbiertas = true;
 
+    // Configuración y Soporte para Amazon S3 (Almacenamiento Cloud)
+    private boolean s3Habilitado = true;
+    private String s3BucketName = "eduacademy-lms-storage";
+    private String s3Region = "us-east-1";
+    private String s3Endpoint = "https://s3.us-east-1.amazonaws.com";
+    private String s3AccessKey = "AKIAIOSFODNN7EXAMPLE";
+
     public LmsAcademiaConfig() {
     }
 
@@ -92,11 +99,57 @@ public class LmsAcademiaConfig {
         this.moneda = moneda;
     }
 
+    public String getSimboloMoneda() {
+        if ("EUR".equalsIgnoreCase(moneda)) return "€";
+        if ("GBP".equalsIgnoreCase(moneda)) return "£";
+        return "$";
+    }
+
     public boolean isInscripcionesAbiertas() {
         return inscripcionesAbiertas;
     }
 
     public void setInscripcionesAbiertas(boolean inscripcionesAbiertas) {
         this.inscripcionesAbiertas = inscripcionesAbiertas;
+    }
+
+    public boolean isS3Habilitado() {
+        return s3Habilitado;
+    }
+
+    public void setS3Habilitado(boolean s3Habilitado) {
+        this.s3Habilitado = s3Habilitado;
+    }
+
+    public String getS3BucketName() {
+        return s3BucketName;
+    }
+
+    public void setS3BucketName(String s3BucketName) {
+        this.s3BucketName = s3BucketName;
+    }
+
+    public String getS3Region() {
+        return s3Region;
+    }
+
+    public void setS3Region(String s3Region) {
+        this.s3Region = s3Region;
+    }
+
+    public String getS3Endpoint() {
+        return s3Endpoint;
+    }
+
+    public void setS3Endpoint(String s3Endpoint) {
+        this.s3Endpoint = s3Endpoint;
+    }
+
+    public String getS3AccessKey() {
+        return s3AccessKey;
+    }
+
+    public void setS3AccessKey(String s3AccessKey) {
+        this.s3AccessKey = s3AccessKey;
     }
 }
