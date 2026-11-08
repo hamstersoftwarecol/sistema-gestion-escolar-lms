@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="c1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="480" fill="#090d16" rx="16" />
+
+  <!-- Section Title -->
+  <text x="50" y="45" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="800" fill="#ffffff">
+    Módulos y Capacidades del Ecosistema
+  </text>
+  <text x="50" y="70" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#94a3b8">
+    Plataforma unificada para administración académica y venta de cursos digitales
+  </text>
+
+  <!-- Grid of 6 Cards (2 rows x 3 cols) -->
+  
+  <!-- Row 1, Card 1: Gestión Escolar -->
+  <g transform="translate(50, 95)">
+    <rect width="280" height="165" rx="14" fill="url(#c1)" stroke="#3b82f6" stroke-width="1.2" />
+    <circle cx="36" cy="36" r="18" fill="#1d4ed8" />
+    <text x="28" y="42" font-size="16">🎓</text>
+    <text x="65" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Gestión Escolar</text>
+    <text x="20" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Matrículas de estudiantes por grado
+    </text>
+    <text x="20" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Registro oficial de calificaciones
+    </text>
+    <text x="20" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Asignación académica y docentes
+    </text>
+    <text x="20" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Control de cupos y periodos lectivos
+    </text>
+  </g>
+
+  <!-- Row 1, Card 2: Gestión Financiera -->
+  <g transform="translate(360, 95)">
+    <rect width="280" height="165" rx="14" fill="url(#c1)" stroke="#10b981" stroke-width="1.2" />
+    <circle cx="36" cy="36" r="18" fill="#047857" />
+    <text x="28" y="42" font-size="16">💵</text>
+    <text x="65" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Gestión Financiera</text>
+    <text x="20" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Balance general de caja en tiempo real
+    </text>
+    <text x="20" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Registro de pagos y pensiones
+    </text>
+    <text x="20" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Control de gastos operativos y nómina
+    </text>
+    <text x="20" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Historial transaccional auditado
+    </text>
+  </g>
+
+  <!-- Row 1, Card 3: Marketplace LMS -->
+  <g transform="translate(670, 95)">
+    <rect width="280" height="165" rx="14" fill="url(#c1)" stroke="#8b5cf6" stroke-width="1.2" />
+    <circle cx="36" cy="36" r="18" fill="#6d28d9" />
+    <text x="28" y="42" font-size="16">🛍️</text>
+    <text x="65" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Marketplace LMS</text>
+    <text x="20" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Catálogo público de cursos online
+    </text>
+    <text x="20" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Filtro por categorías y buscador rápido
+    </text>
+    <text x="20" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Vistas previas gratuitas (Free Preview)
+    </text>
+    <text x="20" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Checkout y pasarela de inscripción
+    </text>
+  </g>
+
+  <!-- Row 2, Card 4: Creador de Cursos -->
+  <g transform="translate(50, 280)">
+    <rect width="280" height="165" rx="14" fill="url(#c1)" stroke="#f59e0b" stroke-width="1.2" />
+    <circle cx="36" cy="36" r="18" fill="#b45309" />
+    <text x="28" y="42" font-size="16">🛠️</text>
+    <text x="65" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Creador de Cursos</text>
+    <text x="20" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Módulos y lecciones estructuradas
+    </text>
+    <text x="20" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Contenido de Goteo (Drip Content)
+    </text>
+    <text x="20" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Adjuntos descargables (.zip, .pdf)
+    </text>
+    <text x="20" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Métricas de ventas para instructores
+    </text>
+  </g>
+
+  <!-- Row 2, Card 5: Aula Virtual & Quizzes -->
+  <g transform="translate(360, 280)">
+    <rect width="280" height="165" rx="14" fill="url(#c1)" stroke="#ec4899" stroke-width="1.2" />
+    <circle cx="36" cy="36" r="18" fill="#be185d" />
+    <text x="28" y="42" font-size="16">📝</text>
+    <text x="65" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Aula &amp; Quizzes</text>
+    <text x="20" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Reproductor responsivo de lecciones
+    </text>
+    <text x="20" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Evaluaciones con corrección en vivo
+    </text>
+    <text x="20" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Entrega de tareas prácticas (GitHub/URL)
+    </text>
+    <text x="20" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Foros de debate y preguntas al docente
+    </text>
+  </g>
+
+  <!-- Row 2, Card 6: Certificados & Marca Blanca -->
+  <g transform="translate(670, 280)">
+    <rect width="280" height="165" rx="14" fill="url(#c1)" stroke="#06b6d4" stroke-width="1.2" />
+    <circle cx="36" cy="36" r="18" fill="#0e7490" />
+    <text x="28" y="42" font-size="16">🏆</text>
+    <text x="65" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Certificados &amp; Marca</text>
+    <text x="20" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Generación de certificados al 100%
+    </text>
+    <text x="20" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • ID de verificación única e impresión
+    </text>
+    <text x="20" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Configuración de academia (Logo/Moneda)
+    </text>
+    <text x="20" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94a3b8">
+      • Comisiones y reportes globales
+    </text>
+  </g>
+</svg>

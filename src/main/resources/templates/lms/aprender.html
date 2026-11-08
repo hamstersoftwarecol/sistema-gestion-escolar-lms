@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${leccionActual.titulo} + ' | Aula Virtual'"></title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar in Learning Room -->
+    <header class="h-16 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-40">
+        <div class="flex items-center space-x-4">
+            <a th:href="@{'/lms/curso/' + ${curso.id}}" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Salir del aula">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </a>
+            <div class="truncate max-w-xs sm:max-w-md">
+                <span class="text-xs text-brand-400 font-bold block" th:text="${curso.titulo}">Curso</span>
+                <span class="text-xs text-slate-400 truncate block" th:text="${leccionActual.titulo}">Lección</span>
+            </div>
+        </div>
+
+        <!-- Student Progress Indicator & Certificate shortcut -->
+        <div class="flex items-center space-x-4">
+            <a th:if="${certificadoDisponible}" th:href="@{'/lms/curso/' + ${curso.id} + '/certificado'}"
+               class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 flex items-center space-x-1.5 transition animate-pulse">
+                <i class="fa-solid fa-award"></i>
+                <span>Mi Certificado</span>
+            </a>
+
+            <div class="hidden sm:flex items-center space-x-3">
+                <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                    <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                         th:style="'width: ' + (${inscripcion != null ? inscripcion.porcentajeProgreso : 0}) + '%'"></div>
+                </div>
+                <span class="text-xs font-bold text-emerald-400"
+                      th:text="(${inscripcion != null ? inscripcion.porcentajeProgreso : 0}) + '%'">0%</span>
+            </div>
+
+            <div th:if="${inscripcion != null && inscripcion.completado}" class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <i class="fa-solid fa-certificate mr-1.5 text-amber-300"></i> Completado
+            </div>
+        </div>
+    </header>
+
+    <!-- Feedback messages -->
+    <div th:if="${mensajeExito}" class="bg-emerald-900/80 border-b border-emerald-700 text-emerald-200 px-6 py-2.5 text-xs font-bold flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span th:text="${mensajeExito}"></span>
+        </div>
+    </div>
+    <div th:if="${mensajeError}" class="bg-rose-900/80 border-b border-rose-700 text-rose-200 px-6 py-2.5 text-xs font-bold flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+            <span th:text="${mensajeError}"></span>
+        </div>
+    </div>
+
+    <!-- Main Learning Stage (2 Columns: Player + Lesson Curriculum) -->
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+        <!-- Left / Center: Interactive Content Player -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
+
+            <!-- DRIP CONTENT LOCK STATE -->
+            <div th:if="${bloqueadaPorGoteo}" class="bg-slate-800/90 rounded-3xl p-8 sm:p-12 border border-amber-500/40 text-center max-w-3xl mx-auto shadow-2xl my-8">
+                <div class="w-20 h-20 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-3xl mx-auto mb-5 border border-amber-500/30">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 uppercase tracking-wider">
+                    Contenido de Goteo Programado
+                </span>
+                <h2 class="text-2xl font-black text-white mt-3 mb-2" th:text="${leccionActual.titulo}">Lección Bloqueada</h2>
+                <p class="text-slate-300 text-sm max-w-lg mx-auto leading-relaxed mb-6">
+                    Esta lección está programada con la metodología de <strong>aprendizaje por goteo (Drip Content)</strong> para garantizar la asimilación paulatina de los temas.
+                </p>
+                <div class="inline-block p-4 rounded-2xl bg-slate-900/80 border border-slate-700 text-xs text-amber-300 font-bold">
+                    <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+                    Se desbloqueará automáticamente en: <span class="text-white text-sm" th:text="${diasRestantesGoteo} + ' días'">3 días</span>
+                </div>
+            </div>
+
+            <!-- NORMAL CONTENT DISPLAY (if not blocked by drip) -->
+            <div th:unless="${bloqueadaPorGoteo}" class="space-y-6">
+
+                <!-- 1. Video / Conferencia Lesson Player -->
+                <div th:if="${leccionActual.tipo.name() == 'VIDEO' || leccionActual.tipo.name() == 'CONFERENCIA'}" class="w-full bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-800 relative aspect-video">
+                    <iframe th:src="${leccionActual.videoUrl}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+
+                <!-- 2. Reading / Article Lesson -->
+                <div th:if="${leccionActual.tipo.name() == 'ARTICULO'}" class="bg-slate-800/80 rounded-3xl p-6 sm:p-10 border border-slate-700/80 shadow-xl max-w-4xl mx-auto">
+                    <div class="flex items-center space-x-2 text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Lectura Teórica y Casos de Estudio</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-6" th:text="${leccionActual.titulo}">Título del Artículo</h1>
+                    <div class="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed whitespace-pre-line" th:text="${leccionActual.contenido}">
+                        Contenido formativo de la lección teórica.
+                    </div>
+                </div>
+
+                <!-- 3. Quiz / Cuestionario Interactivo con Calificación Inmediata -->
+                <div th:if="${leccionActual.tipo.name() == 'QUIZ'}" class="bg-slate-800/80 rounded-3xl p-6 sm:p-10 border border-slate-700/80 shadow-xl max-w-4xl mx-auto">
+                    <div class="flex items-center space-x-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-3">
+                        <i class="fa-solid fa-clipboard-question"></i>
+                        <span>Cuestionario de Evaluación Rápida</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-white mb-2" th:text="${leccionActual.titulo}">Cuestionario</h1>
+                    <p class="text-xs text-slate-400 mb-6" th:text="${leccionActual.contenido}">Responde la pregunta para evaluar tu comprensión y avanzar.</p>
+
+                    <form th:action="@{'/lms/aprender/' + ${curso.id} + '/quiz'}" method="post" class="space-y-4">
+                        <input type="hidden" name="leccionId" th:value="${leccionActual.id}">
+
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                            <p class="font-bold text-sm text-white mb-4" th:text="${leccionActual.quizPregunta != null ? leccionActual.quizPregunta : 'Selecciona la opción correcta:'}">Pregunta</p>
+                            
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3 p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 hover:border-brand-500 cursor-pointer transition">
+                                    <input type="radio" name="respuestaSeleccionada" value="A" required class="text-brand-500 focus:ring-0">
+                                    <span class="text-xs font-semibold text-slate-200" th:text="'A) ' + ${leccionActual.quizOpcionA != null ? leccionActual.quizOpcionA : 'Opción A'}">Opción A</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 hover:border-brand-500 cursor-pointer transition">
+                                    <input type="radio" name="respuestaSeleccionada" value="B" required class="text-brand-500 focus:ring-0">
+                                    <span class="text-xs font-semibold text-slate-200" th:text="'B) ' + ${leccionActual.quizOpcionB != null ? leccionActual.quizOpcionB : 'Opción B'}">Opción B</span>
+                                </label>
+                                <label th:if="${leccionActual.quizOpcionC != null}" class="flex items-center space-x-3 p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 hover:border-brand-500 cursor-pointer transition">
+                                    <input type="radio" name="respuestaSeleccionada" value="C" required class="text-brand-500 focus:ring-0">
+                                    <span class="text-xs font-semibold text-slate-200" th:text="'C) ' + ${leccionActual.quizOpcionC}">Opción C</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-400">Puntaje aprobatorio: 100% de la evaluación</span>
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition flex items-center space-x-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Enviar Evaluación</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 4. Practical Assignment / Tarea con Entrega y Estado -->
+                <div th:if="${leccionActual.tipo.name() == 'TAREA'}" class="bg-slate-800/80 rounded-3xl p-6 sm:p-10 border border-slate-700/80 shadow-xl max-w-4xl mx-auto space-y-6">
+                    <div>
+                        <div class="flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-laptop-code"></i>
+                            <span>Reto Práctico / Tarea Asignada</span>
+                        </div>
+                        <h1 class="text-2xl font-bold text-white mb-2" th:text="${leccionActual.titulo}">Tarea Práctica</h1>
+                        <p class="text-xs text-slate-400" th:text="${leccionActual.contenido}">Enunciado y consigna de la tarea.</p>
+                    </div>
+
+                    <!-- Instructions card -->
+                    <div th:if="${leccionActual.tareaInstrucciones != null}" class="p-5 rounded-2xl bg-slate-900/80 border border-slate-700 text-xs text-slate-300 leading-relaxed whitespace-pre-line">
+                        <strong class="text-emerald-400 block mb-2 font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Instrucciones de Entrega:</strong>
+                        <span th:text="${leccionActual.tareaInstrucciones}"></span>
+                    </div>
+
+                    <!-- Existing submission review -->
+                    <div th:if="${entregaActual != null}" class="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-600/40 text-xs text-emerald-200 space-y-2">
+                        <div class="flex items-center justify-between font-bold">
+                            <span class="flex items-center space-x-2">
+                                <i class="fa-solid fa-check-double text-emerald-400"></i>
+                                <span>Tarea Entregada con Éxito</span>
+                            </span>
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold" th:text="'Calificación: ' + ${entregaActual.calificacion} + '/100'">100/100</span>
+                        </div>
+                        <p th:if="${entregaActual.enlaceEntrega != null}" class="text-slate-300">
+                            Enlace enviado: <a th:href="${entregaActual.enlaceEntrega}" target="_blank" class="underline text-brand-300 break-all" th:text="${entregaActual.enlaceEntrega}"></a>
+                        </p>
+                    </div>
+
+                    <!-- Submission form -->
+                    <form th:action="@{'/lms/aprender/' + ${curso.id} + '/tarea'}" method="post" class="space-y-4">
+                        <input type="hidden" name="leccionId" th:value="${leccionActual.id}">
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Enlace a la Solución (GitHub, Figma o Google Drive):</label>
+                            <input type="url" name="enlaceEntrega" placeholder="https://github.com/tu-usuario/proyecto-solucion"
+                                   class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Notas y Explicación del Estudiante:</label>
+                            <textarea name="notasEstudiante" rows="3" placeholder="Describe brevemente cómo resolviste el reto o las librerías implementadas..."
+                                      class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center space-x-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span th:text="${entregaActual != null ? 'Actualizar Entrega' : 'Subir Entrega de Tarea'}">Subir Entrega</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Downloadable Resource Attachment -->
+                <div th:if="${leccionActual.archivoAdjuntoNombre != null}" class="p-4 rounded-2xl bg-brand-900/30 border border-brand-500/30 flex items-center justify-between max-w-4xl mx-auto">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600/30 text-brand-300 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-file-zipper"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-white block" th:text="${leccionActual.archivoAdjuntoNombre}">archivo.zip</span>
+                            <span class="text-[10px] text-brand-300">Material de apoyo y recursos descargables</span>
+                        </div>
+                    </div>
+                    <a th:href="${leccionActual.archivoAdjuntoUrl}" target="_blank" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Descargar Material</span>
+                    </a>
+                </div>
+
+                <!-- Complete Lesson Button Bar -->
+                <div class="pt-6 border-t border-slate-800 flex items-center justify-between max-w-4xl mx-auto">
+                    <div class="text-xs text-slate-400">
+                        Duración estimada: <strong class="text-white" th:text="${leccionActual.duracionMinutos} + ' minutos'">15 min</strong>
+                    </div>
+
+                    <form th:action="@{'/lms/aprender/' + ${curso.id} + '/completar'}" method="post">
+                        <input type="hidden" name="leccionId" th:value="${leccionActual.id}">
+                        <button type="submit" class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-600/20 flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span th:text="${completadasIds.contains(leccionActual.id) ? 'Volver a Marcar como Completada' : 'Marcar Lección como Completada'}">Marcar como Completada</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Right: Course Curriculum Drawer (Desktop Sidebar) -->
+        <aside class="w-full lg:w-96 bg-slate-950 border-t lg:border-t-0 lg:border-l border-slate-800 flex flex-col justify-between max-h-[50vh] lg:max-h-none overflow-y-auto">
+            <div>
+                <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-sm text-white">Temario del Curso</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5" th:text="${todasLecciones.size()} + ' lecciones en total'"></p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400" th:text="${completadasIds.size()} + '/' + ${todasLecciones.size()} + ' listas'">0/0</span>
+                </div>
+
+                <!-- Modules & Lessons Tree -->
+                <div class="divide-y divide-slate-800/80">
+                    <div th:each="m : ${modulos}">
+                        <div class="bg-slate-900/60 px-5 py-3 text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+                            <span th:text="${m.titulo}">Módulo</span>
+                        </div>
+
+                        <div class="divide-y divide-slate-900">
+                            <a th:each="l : ${m.lecciones}"
+                               th:href="@{'/lms/aprender/' + ${curso.id} + '?leccionId=' + ${l.id}}"
+                               th:class="${l.id == leccionActual.id} ? 'flex items-center justify-between px-5 py-3.5 bg-brand-600 text-white font-semibold text-xs transition' : 'flex items-center justify-between px-5 py-3.5 hover:bg-slate-900 text-slate-300 text-xs transition'">
+                                <div class="flex items-center space-x-3 truncate">
+                                    <span th:if="${completadasIds.contains(l.id)}" class="text-emerald-400" title="Completada"><i class="fa-solid fa-circle-check"></i></span>
+                                    <span th:unless="${completadasIds.contains(l.id)}" class="opacity-40">
+                                        <i th:if="${l.diasGoteo != null && l.diasGoteo > 0}" class="fa-solid fa-lock text-amber-400" title="Goteo"></i>
+                                        <i th:unless="${l.diasGoteo != null && l.diasGoteo > 0}" class="fa-regular fa-circle"></i>
+                                    </span>
+                                    <span class="truncate" th:text="${l.titulo}">Título Lección</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span th:if="${l.diasGoteo != null && l.diasGoteo > 0}" class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">Goteo</span>
+                                    <span class="text-[10px] opacity-70" th:text="${l.duracionMinutos} + 'm'">15m</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer in learning sidebar -->
+            <div class="p-4 border-t border-slate-800 bg-slate-900/40 text-center space-y-2">
+                <a th:if="${certificadoDisponible}" th:href="@{'/lms/curso/' + ${curso.id} + '/certificado'}"
+                   class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-lg transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Descargar Certificado Oficial</span>
+                </a>
+                <a th:href="@{'/lms/curso/' + ${curso.id}}" class="block text-xs font-bold text-brand-400 hover:text-brand-300">
+                    <i class="fa-solid fa-comments mr-1"></i> Ir al Foro de Debates del Curso
+                </a>
+            </div>
+        </aside>
+
+    </div>
+
+</body>
+</html>

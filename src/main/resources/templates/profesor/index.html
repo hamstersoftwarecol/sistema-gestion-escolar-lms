@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Portal para Profesores')}"></head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <div th:replace="~{fragments/layout :: sidebar('profesor')}"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="lg:pl-72 flex flex-col min-h-screen">
+
+        <!-- Top Header Bar -->
+        <div th:replace="~{fragments/layout :: topbar('Portal Docente')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <!-- Dashboard Body -->
+        <main class="p-6 sm:p-8 flex-1">
+
+            <!-- Teacher Switcher Bar (Visible for Admin inspection) -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 gap-4" sec:authorize="hasRole('ADMIN')">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Gestión de Calificaciones</h2>
+                    <p class="text-xs text-slate-500">Supervisando como Administrador la planilla de docentes</p>
+                </div>
+
+                <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2 self-start sm:self-auto">
+                    <span class="text-xs font-semibold text-slate-500 pl-2">Seleccionar Docente:</span>
+                    <form method="get" th:action="@{/profesor}">
+                        <select name="profesorId" onchange="this.form.submit()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500 cursor-pointer">
+                            <option th:each="p : ${profesores}" th:value="${p.id}" th:text="${p.nombre}" th:selected="${profesorActual != null && p.id == profesorActual.id}">Profesor</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Teacher Bio Card -->
+            <div th:if="${profesorActual != null}" class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-6 text-white shadow-lg mb-8 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+                <img th:src="${profesorActual.avatar}" class="w-16 h-16 rounded-2xl bg-white/20 p-1 border-2 border-white/40 shadow-md" alt="Avatar">
+                <div class="text-center sm:text-left flex-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-white/20 text-white mb-1">
+                        <i class="fa-solid fa-chalkboard-user mr-1.5"></i> Docente Titular
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold" th:text="${profesorActual.nombre}">Prof. Roberto Gómez</h2>
+                    <div class="mt-2 flex flex-wrap gap-4 text-xs text-amber-100">
+                        <span><i class="fa-solid fa-envelope mr-1.5"></i> <span th:text="${profesorActual.email}">email</span></span>
+                        <span><i class="fa-solid fa-phone mr-1.5"></i> <span th:text="${profesorActual.telefono}">telefono</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Tabs -->
+            <div class="mb-6">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Materias Asignadas</p>
+                <div class="flex flex-wrap gap-2.5">
+                    <a th:each="c : ${misCursos}"
+                       th:href="@{/profesor(profesorId=${profesorActual.id}, cursoId=${c.id})}"
+                       th:class="${cursoSeleccionado != null && c.id == cursoSeleccionado.id} ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm transition' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition'">
+                        <span th:text="${c.codigo}">MAT-101</span> - <span th:text="${c.nombre}">Matemáticas</span>
+                        <span class="text-xs ml-1 opacity-80" th:text="'(' + ${c.grado} + ')'">11°</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Grade Table -->
+            <div th:if="${cursoSeleccionado != null}" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900" th:text="'Planilla: ' + ${cursoSeleccionado.nombre}">Materia</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            <span class="font-medium text-slate-700" th:text="${cursoSeleccionado.horario}">Horario</span> | 
+                            Aula: <span class="font-medium text-slate-700" th:text="${cursoSeleccionado.aula}">Aula</span>
+                        </p>
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium">
+                        Cálculo: <span class="font-semibold text-slate-800">30% Parcial 1 + 30% Parcial 2 + 40% Examen Final</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="px-5 py-3.5">Estudiante</th>
+                                <th class="px-5 py-3.5 text-center">Nota 1 (30%)</th>
+                                <th class="px-5 py-3.5 text-center">Nota 2 (30%)</th>
+                                <th class="px-5 py-3.5 text-center">Examen (40%)</th>
+                                <th class="px-5 py-3.5 text-center">Definitiva</th>
+                                <th class="px-5 py-3.5">Observaciones</th>
+                                <th class="px-5 py-3.5 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="cal : ${calificaciones}" class="hover:bg-slate-50/80 transition">
+                                <form th:action="@{/profesor/calificar}" method="post">
+                                    <input type="hidden" name="calificacionId" th:value="${cal.id}">
+                                    <input type="hidden" name="profesorId" th:value="${profesorActual.id}">
+                                    <input type="hidden" name="cursoId" th:value="${cursoSeleccionado.id}">
+
+                                    <td class="px-5 py-4">
+                                        <div class="font-bold text-slate-900" th:text="${cal.matricula.estudiante.nombre}">Estudiante</div>
+                                        <div class="text-xs text-slate-400 font-mono" th:text="${cal.matricula.estudiante.documento}">10987654</div>
+                                    </td>
+                                    <td class="px-5 py-4 text-center">
+                                        <input type="number" step="0.1" min="0" max="5" name="nota1" th:value="${cal.nota1}" required
+                                               class="w-16 text-center font-bold px-2 py-1.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </td>
+                                    <td class="px-5 py-4 text-center">
+                                        <input type="number" step="0.1" min="0" max="5" name="nota2" th:value="${cal.nota2}" required
+                                               class="w-16 text-center font-bold px-2 py-1.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </td>
+                                    <td class="px-5 py-4 text-center">
+                                        <input type="number" step="0.1" min="0" max="5" name="notaFinal" th:value="${cal.notaFinal}" required
+                                               class="w-16 text-center font-bold px-2 py-1.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </td>
+                                    <td class="px-5 py-4 text-center">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
+                                              th:classappend="${cal.aprobado} ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
+                                              th:text="${cal.promedio}">4.2</span>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <input type="text" name="observaciones" th:value="${cal.observaciones}" placeholder="Observaciones..."
+                                               class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </td>
+                                    <td class="px-5 py-4 text-right">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition shadow-sm" title="Guardar">
+                                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> Guardar
+                                        </button>
+                                    </td>
+                                </form>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(calificaciones)}">
+                                <td colspan="7" class="px-5 py-8 text-center text-slate-400 italic">
+                                    No hay estudiantes matriculados en este curso todavía.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

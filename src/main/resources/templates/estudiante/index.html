@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Portal Estudiantes')}"></head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <div th:replace="~{fragments/layout :: sidebar('estudiante')}"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="lg:pl-72 flex flex-col min-h-screen">
+
+        <!-- Top Header Bar -->
+        <div th:replace="~{fragments/layout :: topbar('Campus Virtual Estudiantil')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <!-- Dashboard Body -->
+        <main class="p-6 sm:p-8 flex-1">
+
+            <!-- Student Switcher Bar (Visible for Admin inspection) -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 gap-4" sec:authorize="hasRole('ADMIN')">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Seguimiento de Alumnos</h2>
+                    <p class="text-xs text-slate-500">Supervisando como Administrador el estado del estudiante</p>
+                </div>
+
+                <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2 self-start sm:self-auto">
+                    <span class="text-xs font-semibold text-slate-500 pl-2">Seleccionar Alumno:</span>
+                    <form method="get" th:action="@{/estudiante}">
+                        <select name="estudianteId" onchange="this.form.submit()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option th:each="e : ${estudiantes}" th:value="${e.id}" th:text="${e.nombre}" th:selected="${estudianteActual != null && e.id == estudianteActual.id}">Estudiante</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Student Profile & GPA Hero -->
+            <div th:if="${estudianteActual != null}" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl mb-8 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative z-10">
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+                        <img th:src="${estudianteActual.avatar}" class="w-16 h-16 rounded-2xl bg-white/20 p-1 border-2 border-white/40 shadow-md" alt="Avatar">
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-white/20 text-white mb-1">
+                                <i class="fa-solid fa-graduation-cap mr-1.5"></i> Estudiante Activo
+                            </span>
+                            <h2 class="text-xl sm:text-2xl font-bold" th:text="${estudianteActual.nombre}">Santiago Gómez</h2>
+                            <div class="mt-2 flex flex-wrap gap-4 text-xs text-blue-100 justify-center sm:justify-start">
+                                <span><i class="fa-solid fa-envelope mr-1.5"></i> <span th:text="${estudianteActual.email}">email</span></span>
+                                <span><i class="fa-solid fa-id-card mr-1.5"></i> Documento: <span th:text="${estudianteActual.documento}">doc</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center min-w-[105px]">
+                            <span class="text-[11px] uppercase font-semibold text-blue-200">Promedio</span>
+                            <div class="text-2xl sm:text-3xl font-extrabold text-amber-300 mt-0.5" th:text="${promedioGeneral}">4.2</div>
+                            <span class="text-[9px] text-blue-100">Escala 0.0 - 5.0</span>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center min-w-[115px]">
+                            <span class="text-[11px] uppercase font-semibold text-blue-200">Saldo Pendiente</span>
+                            <div class="text-xl sm:text-2xl font-extrabold mt-0.5" th:classappend="${deudaPendiente > 0} ? 'text-rose-300' : 'text-emerald-300'" th:text="'$' + ${#numbers.formatDecimal(deudaPendiente, 1, 'COMMA', 2, 'POINT')}">$0.00</div>
+                            <span class="text-[9px] text-blue-100" th:text="${deudaPendiente > 0} ? 'Pago pendiente' : 'Al día'">Al día</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="absolute right-0 bottom-0 w-72 h-72 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+            </div>
+
+            <!-- Section 1: Boletín de Calificaciones -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Boletín Oficial de Calificaciones</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Semestre Académico 2026-I</p>
+                    </div>
+                    <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700" th:text="${calificaciones.size()} + ' asignaturas'">2 asignaturas</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="px-5 py-3.5">Asignatura</th>
+                                <th class="px-5 py-3.5">Profesor</th>
+                                <th class="px-5 py-3.5">Horario & Aula</th>
+                                <th class="px-5 py-3.5 text-center">Parcial 1 (30%)</th>
+                                <th class="px-5 py-3.5 text-center">Parcial 2 (30%)</th>
+                                <th class="px-5 py-3.5 text-center">Examen (40%)</th>
+                                <th class="px-5 py-3.5 text-center">Definitiva</th>
+                                <th class="px-5 py-3.5">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="c : ${calificaciones}" class="hover:bg-slate-50/80 transition">
+                                <td class="px-5 py-4">
+                                    <div class="font-bold text-slate-900" th:text="${c.matricula.curso.nombre}">Matemáticas</div>
+                                    <div class="text-xs text-slate-400 font-mono" th:text="${c.matricula.curso.codigo} + ' | ' + ${c.matricula.curso.grado}">MAT-101</div>
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-700 font-medium" th:text="${c.matricula.curso.profesor != null ? c.matricula.curso.profesor.nombre : 'Sin asignar'}">Profesor</td>
+                                <td class="px-5 py-4 text-xs text-slate-500">
+                                    <div th:text="${c.matricula.curso.horario}">Lun-Mié 08:00</div>
+                                    <div class="font-semibold text-slate-700" th:text="${c.matricula.curso.aula}">Aula 101</div>
+                                </td>
+                                <td class="px-5 py-4 text-center font-semibold text-slate-800" th:text="${c.nota1}">4.0</td>
+                                <td class="px-5 py-4 text-center font-semibold text-slate-800" th:text="${c.nota2}">4.5</td>
+                                <td class="px-5 py-4 text-center font-semibold text-slate-800" th:text="${c.notaFinal}">4.2</td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold"
+                                          th:classappend="${c.aprobado} ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
+                                          th:text="${c.promedio}">4.2</span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <span th:if="${c.aprobado}" class="text-xs font-semibold text-emerald-600 flex items-center">
+                                        <i class="fa-solid fa-circle-check mr-1.5"></i> Aprobado
+                                    </span>
+                                    <span th:unless="${c.aprobado}" class="text-xs font-semibold text-rose-600 flex items-center">
+                                        <i class="fa-solid fa-circle-xmark mr-1.5"></i> Reprobado
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(calificaciones)}">
+                                <td colspan="8" class="px-5 py-8 text-center text-slate-400 italic">
+                                    No estás matriculado en ninguna asignatura para este período.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 2: Estado de Cuenta -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Estado de Cuenta Financiero</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Historial de mensualidades y pagos en línea</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="px-5 py-3.5">Factura</th>
+                                <th class="px-5 py-3.5">Concepto</th>
+                                <th class="px-5 py-3.5">Vencimiento</th>
+                                <th class="px-5 py-3.5">Monto</th>
+                                <th class="px-5 py-3.5">Estado</th>
+                                <th class="px-5 py-3.5 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="t : ${transacciones}" class="hover:bg-slate-50/80 transition">
+                                <td class="px-5 py-4 font-mono font-bold text-xs text-slate-800" th:text="${t.numeroFactura}">FAC-001</td>
+                                <td class="px-5 py-4 font-semibold text-slate-900" th:text="${t.concepto}">Pensión</td>
+                                <td class="px-5 py-4 text-xs text-slate-500" th:text="${t.fechaVencimiento}">2026-03-01</td>
+                                <td class="px-5 py-4 font-bold text-slate-900" th:text="'$' + ${#numbers.formatDecimal(t.monto, 1, 'COMMA', 2, 'POINT')}">$180.00</td>
+                                <td class="px-5 py-4">
+                                    <span th:if="${t.estado.name() == 'PAGADO'}" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <i class="fa-solid fa-check mr-1.5 text-xs"></i> Pagado
+                                    </span>
+                                    <span th:if="${t.estado.name() == 'PENDIENTE'}" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <i class="fa-solid fa-clock mr-1.5 text-xs"></i> Pendiente
+                                    </span>
+                                    <span th:if="${t.estado.name() == 'VENCIDO'}" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <i class="fa-solid fa-triangle-exclamation mr-1.5 text-xs"></i> Vencido
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <form th:if="${t.estado.name() != 'PAGADO'}" th:action="@{'/estudiante/pagar/' + ${t.id}}" method="post" class="inline">
+                                        <input type="hidden" name="estudianteId" th:value="${estudianteActual.id}">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-sm">
+                                            <i class="fa-solid fa-credit-card mr-1.5"></i> Pagar
+                                        </button>
+                                    </form>
+                                    <span th:if="${t.estado.name() == 'PAGADO'}" class="text-xs text-emerald-600 font-semibold">
+                                        <i class="fa-solid fa-receipt mr-1"></i> Comprobante OK
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

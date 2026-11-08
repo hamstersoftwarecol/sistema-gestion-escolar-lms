@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cursos Online - Marketplace')}"></head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <div th:replace="~{fragments/layout :: sidebar('lms_catalogo')}"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="lg:pl-72 flex flex-col min-h-screen">
+
+        <!-- Top Header Bar -->
+        <div th:replace="~{fragments/layout :: topbar('Marketplace de Cursos Online')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <!-- Dashboard Body -->
+        <main class="p-6 sm:p-8 flex-1">
+
+            <!-- Hero LMS Academy Banner (White-label branded) -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-900 text-white p-8 sm:p-12 shadow-xl mb-10 border border-slate-800">
+                <div class="relative z-10 max-w-3xl">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 mb-4">
+                        <i class="fa-solid fa-graduation-cap mr-1.5 text-indigo-400"></i> <span th:text="${config.nombreAcademia}">EduAcademy Pro</span>
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                        Aprende, Domina y <br><span class="text-indigo-300">Monetiza tus Conocimientos</span>
+                    </h1>
+                    <p class="mt-4 text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed" th:text="${config.lema}">
+                        Cursos estructurados con lecciones interactivas, cuestionarios, tareas prácticas y proyectos del mundo real.
+                    </p>
+
+                    <!-- Search Bar in Hero -->
+                    <form th:action="@{/lms}" method="get" class="mt-8 flex flex-col sm:flex-row gap-2 max-w-xl">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                            </span>
+                            <input type="text" name="buscar" th:value="${busquedaActual}" placeholder="Buscar cursos por título, tecnología o tema..."
+                                   class="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/10 text-white placeholder-slate-400 border border-white/20 backdrop-blur-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition">
+                        </div>
+                        <button type="submit" class="px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2">
+                            <span>Buscar</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            </div>
+
+            <!-- Categories Filter -->
+            <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+                <div class="flex items-center flex-wrap gap-2">
+                    <a th:href="@{/lms}"
+                       th:class="${categoriaSeleccionada == null || categoriaSeleccionada == ''} ? 'px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-sm transition' : 'px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition'">
+                        Todos los Cursos
+                    </a>
+                    <a th:each="cat : ${categorias}"
+                       th:href="@{/lms(categoria=${cat})}"
+                       th:class="${categoriaSeleccionada == cat} ? 'px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-bold shadow-sm transition' : 'px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition'"
+                       th:text="${cat}">Categoría</a>
+                </div>
+
+                <div sec:authorize="hasAnyRole('PROFESOR', 'ADMIN')">
+                    <a href="/lms/instructor" class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Crear Nuevo Curso</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Course Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div th:each="c : ${cursos}" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group">
+                    <div>
+                        <!-- Cover Image & Badge -->
+                        <div class="relative h-48 overflow-hidden bg-slate-900">
+                            <img th:src="${c.imagenUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="Cover">
+                            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-[11px] font-bold text-white uppercase tracking-wider" th:text="${c.categoria}">Categoría</span>
+                            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-white/90 text-slate-800 text-[10px] font-extrabold" th:text="${c.nivel}">Intermedio</span>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-6">
+                            <!-- Rating & Reviews -->
+                            <div class="flex items-center space-x-1 text-amber-400 text-xs mb-2">
+                                <i class="fa-solid fa-star"></i>
+                                <span class="font-bold text-slate-800 text-sm ml-1" th:text="${c.promedioRating}">4.9</span>
+                                <span class="text-slate-400 text-[11px]" th:text="'(' + ${c.resenas.size()} + ' reseñas)'">(12)</span>
+                            </div>
+
+                            <h3 class="text-base font-bold text-slate-900 group-hover:text-brand-600 transition line-clamp-2 mb-1.5" th:text="${c.titulo}">Título del Curso</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4" th:text="${c.subtitulo}">Subtítulo descriptivo del curso</p>
+
+                            <!-- Instructor Info -->
+                            <div class="flex items-center space-x-2.5 pt-3 border-t border-slate-100 text-xs text-slate-600">
+                                <img th:src="${c.instructor.avatar}" class="w-6 h-6 rounded-full bg-slate-100" alt="Instructor">
+                                <span class="font-medium truncate" th:text="${c.instructor.nombre}">Instructor</span>
+                            </div>
+
+                            <!-- Meta: Duración y Lecciones -->
+                            <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                                <span><i class="fa-regular fa-clock mr-1"></i> <span th:text="${c.duracionHoras} + ' horas'">20 horas</span></span>
+                                <span><i class="fa-regular fa-circle-play mr-1"></i> <span th:text="${c.totalLecciones} + ' lecciones'">15 lecciones</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price & CTA Button -->
+                    <div class="px-6 pb-6 pt-2 flex items-center justify-between border-t border-slate-50">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Inversión</span>
+                            <span class="text-2xl font-extrabold text-slate-900" th:text="'$' + ${#numbers.formatDecimal(c.precio, 1, 'COMMA', 2, 'POINT')}">$49.99</span>
+                        </div>
+                        <a th:href="@{'/lms/curso/' + ${c.id}}" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold transition shadow-sm flex items-center space-x-1.5">
+                            <span>Ver Detalles</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(cursos)}" class="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center">
+                    <i class="fa-solid fa-magnifying-glass text-4xl text-slate-300 mb-3 block"></i>
+                    <h4 class="text-base font-bold text-slate-700">No se encontraron cursos</h4>
+                    <p class="text-xs text-slate-500 mt-1">Intenta con otros términos de búsqueda o selecciona otra categoría.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

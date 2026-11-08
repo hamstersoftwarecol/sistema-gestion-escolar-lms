@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Panel de Instructor & Creador de Cursos')}"></head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <div th:replace="~{fragments/layout :: sidebar('lms_instructor')}"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="lg:pl-72 flex flex-col min-h-screen">
+
+        <!-- Top Header Bar -->
+        <div th:replace="~{fragments/layout :: topbar('Creador de Cursos & Panel de Instructor')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <!-- Dashboard Body -->
+        <main class="p-6 sm:p-8 flex-1">
+
+            <!-- Action Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Estudio de Creación de Contenido</h2>
+                    <p class="text-xs text-slate-500">Publica nuevos cursos, estructura lecciones interactivas y monetiza tus conocimientos</p>
+                </div>
+                <button onclick="document.getElementById('modalCrearCurso').classList.remove('hidden')" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-sm flex items-center space-x-2 self-start sm:self-auto">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Crear Nuevo Curso</span>
+                </button>
+            </div>
+
+            <!-- Instructor KPI Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Ganancias Totales Acumuladas</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-1" th:text="'$' + ${#numbers.formatDecimal(stats.gananciasTotales, 1, 'COMMA', 2, 'POINT')}">$0.00</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">Venta de cursos menos comisión de la academia</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Alumnos Inscritos</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-1" th:text="${stats.totalEstudiantes}">0</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">Estudiantes activos cursando tus contenidos</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Cursos Ofertados</p>
+                    <h3 class="text-3xl font-extrabold text-slate-900 mt-1" th:text="${stats.totalCursos}">0</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">Cursos publicados en el marketplace</p>
+                </div>
+            </div>
+
+            <!-- Course Builder / Constructor de Contenido -->
+            <div th:if="${cursoGestionar != null}" class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+
+                <!-- Left 1 Col: Course Selector & Quick Modals -->
+                <div class="lg:col-span-1 space-y-6">
+
+                    <!-- Select Course -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Seleccionar Curso a Gestionar:</label>
+                        <form method="get" th:action="@{/lms/instructor}">
+                            <select name="cursoGestionarId" onchange="this.form.submit()" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                                <option th:each="c : ${misCursos}" th:value="${c.id}" th:text="${c.titulo}" th:selected="${c.id == cursoGestionar.id}">Curso</option>
+                            </select>
+                        </form>
+                    </div>
+
+                    <!-- Add Module Form -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center space-x-2 text-indigo-600 text-xs font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-folder-plus"></i>
+                            <span>Añadir Módulo / Sección</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900 mb-3">Estructura de Temario</h4>
+                        <form th:action="@{/lms/instructor/modulo/crear}" method="post" class="space-y-3">
+                            <input type="hidden" name="cursoId" th:value="${cursoGestionar.id}">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Título del Módulo</label>
+                                <input type="text" name="titulo" placeholder="Ej: Módulo 3: Seguridad y Tokens JWT" required
+                                       class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                            </div>
+                            <button type="submit" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">
+                                Guardar Módulo
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Add Lesson Form -->
+                    <div th:if="${!#lists.isEmpty(modulos)}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center space-x-2 text-amber-600 text-xs font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                            <span>Añadir Lección Interactiva</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900 mb-3">Contenido de la Lección</h4>
+
+                        <form th:action="@{/lms/instructor/leccion/crear}" method="post" class="space-y-3">
+                            <input type="hidden" name="cursoId" th:value="${cursoGestionar.id}">
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Módulo Destino</label>
+                                <select name="moduloId" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                                    <option th:each="m : ${modulos}" th:value="${m.id}" th:text="${m.titulo}">Módulo</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Título de la Lección</label>
+                                <input type="text" name="titulo" placeholder="Ej: 3.1 Filtro de Autenticación" required
+                                       class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label>
+                                    <select name="tipo" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                                        <option value="VIDEO">🎥 Video Lección</option>
+                                        <option value="CONFERENCIA">🎙️ Conferencia / Masterclass</option>
+                                        <option value="ARTICULO">📝 Lectura / Artículo</option>
+                                        <option value="QUIZ">❓ Cuestionario / Quiz</option>
+                                        <option value="TAREA">📋 Tarea Práctica</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Duración (min)</label>
+                                    <input type="number" name="duracionMinutos" value="15" min="1"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Días Goteo</label>
+                                    <input type="number" name="diasGoteo" value="0" min="0" placeholder="0 = inmediato"
+                                           class="w-full px-2 py-1 rounded-lg border border-slate-300 text-xs">
+                                </div>
+                                <div class="flex items-center pt-3">
+                                    <label class="flex items-center space-x-1.5 cursor-pointer">
+                                        <input type="checkbox" name="vistaPrevia" value="true" class="rounded text-brand-600">
+                                        <span class="text-[11px] font-bold text-slate-700">Preview Gratis</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">URL de Video / Conferencia</label>
+                                <input type="text" name="videoUrl" placeholder="https://www.youtube.com/embed/..."
+                                       class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Contenido / Descripción</label>
+                                <textarea name="contenido" rows="2" placeholder="Explicación detallada o enunciado del reto..."
+                                          class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre Adjunto</label>
+                                    <input type="text" name="archivoAdjuntoNombre" placeholder="ejemplo.zip"
+                                           class="w-full px-2.5 py-1.5 rounded-xl border border-slate-300 text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL Descarga</label>
+                                    <input type="text" name="archivoAdjuntoUrl" placeholder="https://..."
+                                           class="w-full px-2.5 py-1.5 rounded-xl border border-slate-300 text-xs">
+                                </div>
+                            </div>
+
+                            <!-- Opciones para Cuestionario (Quiz) -->
+                            <details class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <summary class="text-xs font-bold text-amber-700 cursor-pointer flex items-center justify-between">
+                                    <span>⚙️ Configurar Cuestionario / Quiz</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                </summary>
+                                <div class="space-y-1.5 mt-2 text-xs">
+                                    <input type="text" name="quizPregunta" placeholder="Pregunta del cuestionario..." class="w-full px-2 py-1 rounded border border-slate-300 text-xs">
+                                    <input type="text" name="quizOpcionA" placeholder="Opción A..." class="w-full px-2 py-1 rounded border border-slate-300 text-xs">
+                                    <input type="text" name="quizOpcionB" placeholder="Opción B..." class="w-full px-2 py-1 rounded border border-slate-300 text-xs">
+                                    <input type="text" name="quizOpcionC" placeholder="Opción C..." class="w-full px-2 py-1 rounded border border-slate-300 text-xs">
+                                    <div class="flex items-center space-x-2 pt-1">
+                                        <span class="text-[11px] font-semibold text-slate-600">Correcta:</span>
+                                        <select name="quizRespuestaCorrecta" class="px-2 py-1 rounded border border-slate-300 text-xs font-bold">
+                                            <option value="A">Opción A</option>
+                                            <option value="B">Opción B</option>
+                                            <option value="C">Opción C</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Opciones para Tarea Práctica -->
+                            <details class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <summary class="text-xs font-bold text-emerald-700 cursor-pointer flex items-center justify-between">
+                                    <span>⚙️ Instrucciones de Tarea</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                </summary>
+                                <div class="mt-2 text-xs">
+                                    <textarea name="tareaInstrucciones" rows="2" placeholder="Especificaciones y criterios de entrega de la tarea..." class="w-full px-2 py-1 rounded border border-slate-300 text-xs"></textarea>
+                                </div>
+                            </details>
+
+                            <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition">
+                                Guardar Lección en Temario
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+                <!-- Right 2 Cols: Course Syllabus Preview -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between pb-5 border-b border-slate-200 mb-6">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-brand-600">Temario en Vivo</span>
+                                <h3 class="text-xl font-bold text-slate-900" th:text="${cursoGestionar.titulo}">Título del Curso</h3>
+                            </div>
+                            <a th:href="@{'/lms/aprender/' + ${cursoGestionar.id}}" target="_blank"
+                               class="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                                <span>Previsualizar Aula</span>
+                            </a>
+                        </div>
+
+                        <!-- Modules List -->
+                        <div class="space-y-4">
+                            <div th:each="m, iter : ${modulos}" class="border border-slate-200 rounded-2xl overflow-hidden">
+                                <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center" th:text="${iter.count}">1</span>
+                                        <span class="font-bold text-sm text-slate-900" th:text="${m.titulo}">Módulo</span>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-400" th:text="${m.lecciones.size()} + ' lecciones'">0 lecciones</span>
+                                </div>
+
+                                <div class="divide-y divide-slate-100 bg-white">
+                                    <div th:each="l : ${m.lecciones}" class="px-5 py-3 flex items-center justify-between text-xs hover:bg-slate-50 transition">
+                                        <div class="flex items-center space-x-3">
+                                            <span th:if="${l.tipo.name() == 'VIDEO'}" class="text-indigo-600"><i class="fa-solid fa-circle-play"></i></span>
+                                            <span th:if="${l.tipo.name() == 'ARTICULO'}" class="text-blue-600"><i class="fa-solid fa-file-lines"></i></span>
+                                            <span th:if="${l.tipo.name() == 'QUIZ'}" class="text-amber-600"><i class="fa-solid fa-clipboard-question"></i></span>
+                                            <span th:if="${l.tipo.name() == 'TAREA'}" class="text-emerald-600"><i class="fa-solid fa-laptop-code"></i></span>
+                                            <span class="font-medium text-slate-800" th:text="${l.titulo}">Lección</span>
+                                        </div>
+                                        <span class="text-slate-400" th:text="${l.duracionMinutos} + ' min'">15 min</span>
+                                    </div>
+                                    <div th:if="${#lists.isEmpty(m.lecciones)}" class="px-5 py-4 text-xs text-slate-400 italic text-center">
+                                        No has añadido lecciones a este módulo todavía.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${#lists.isEmpty(modulos)}" class="p-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                Este curso aún no tiene módulos. Usa el formulario de la izquierda para agregar tu primer módulo.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal: Crear Nuevo Curso -->
+    <div id="modalCrearCurso" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-fade-in">
+            <button onclick="document.getElementById('modalCrearCurso').classList.add('hidden')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-slate-900 mb-1">Crear Nuevo Curso Online</h3>
+            <p class="text-xs text-slate-500 mb-6">Define los datos principales de tu nuevo producto formativo.</p>
+
+            <form th:action="@{/lms/instructor/crear-curso}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Título del Curso</label>
+                    <input type="text" name="titulo" placeholder="Ej: Máster en Desarrollo con Docker y Kubernetes" required
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Subtítulo Resumido</label>
+                    <input type="text" name="subtitulo" placeholder="Ej: Despliegue de microservicios e infraestructura cloud" required
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Categoría</label>
+                        <select name="categoria" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                            <option value="Desarrollo de Software">Desarrollo de Software</option>
+                            <option value="Ciencia de Datos & IA">Ciencia de Datos & IA</option>
+                            <option value="Diseño & Creatividad">Diseño & Creatividad</option>
+                            <option value="Negocios & Finanzas">Negocios & Finanzas</option>
+                            <option value="Idiomas">Idiomas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nivel</label>
+                        <select name="nivel" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                            <option value="Principiante">Principiante</option>
+                            <option value="Intermedio">Intermedio</option>
+                            <option value="Avanzado">Avanzado</option>
+                            <option value="Todos los niveles">Todos los niveles</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Precio de Venta ($)</label>
+                        <input type="number" step="0.01" name="precio" value="69.99" required
+                               class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Duración Total (Horas)</label>
+                        <input type="number" name="duracionHoras" value="18" required
+                               class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">URL de Imagen de Portada</label>
+                    <input type="text" name="imagenUrl" value="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80"
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción Completa</label>
+                    <textarea name="descripcion" rows="3" placeholder="Detalla los objetivos pedagógicos y requisitos previos..." required
+                              class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="document.getElementById('modalCrearCurso').classList.add('hidden')" class="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition">Crear Curso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

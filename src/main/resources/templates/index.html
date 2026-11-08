@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <div th:replace="~{fragments/layout :: sidebar('home')}"></div>
+
+    <!-- Main Content Wrapper (shifted for sidebar) -->
+    <div class="lg:pl-72 flex flex-col min-h-screen">
+
+        <!-- Top Header Bar -->
+        <div th:replace="~{fragments/layout :: topbar('Visión General')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <!-- Dashboard Body -->
+        <main class="p-6 sm:p-8 flex-1">
+
+            <!-- Hero Header Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-indigo-900 to-slate-900 text-white p-8 sm:p-10 shadow-xl mb-8">
+                <div class="relative z-10 max-w-3xl">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-200 backdrop-blur-md mb-4 border border-white/15">
+                        <i class="fa-solid fa-sparkles mr-1.5 text-amber-300"></i> Plataforma Integrada de Gestión
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                        Sistema Escolar <br><span class="text-indigo-300">EduGestión PRO</span>
+                    </h2>
+                    <p class="mt-3 text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
+                        Controla matrículas, seguimiento de calificaciones, tesorería financiera y portales especializados con roles y permisos en tiempo real.
+                    </p>
+
+                    <div class="mt-6 flex flex-wrap gap-3" sec:authorize="hasRole('ADMIN')">
+                        <a href="/admin" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-brand-600/30 flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Ir a Administración</span>
+                        </a>
+                        <a href="/matriculas" class="bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm transition backdrop-blur-md border border-white/20 flex items-center space-x-2">
+                            <i class="fa-solid fa-address-card"></i>
+                            <span>Nueva Matrícula</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Glow decoration -->
+                <div class="absolute -right-12 -bottom-12 w-80 h-80 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            </div>
+
+            <!-- Global KPI Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Estudiantes</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" th:text="${totalEstudiantes}">0</h3>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Docentes</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" th:text="${totalProfesores}">0</h3>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Matrículas</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" th:text="${totalMatriculas}">0</h3>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Recaudo Total</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" th:text="'$' + ${#numbers.formatDecimal(statsFinanzas.totalRecaudado, 1, 'COMMA', 2, 'POINT')}">$0.00</h3>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulos Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- 1. Portal Administrativo -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xl mb-4 shadow-sm group-hover:scale-105 transition">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Portal Administrativo</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Control institucional de directivos, catálogo de materias, aulas y usuarios con permisos de administrador.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <a href="/admin" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition">
+                            Abrir Módulo <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. Módulo de Matrículas -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-sm group-hover:scale-105 transition">
+                            <i class="fa-solid fa-address-card"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Matrículas Académicas</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Inscripciones de estudiantes por grado, control de cupos y emisión de comprobantes financieros.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <a href="/matriculas" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                            Abrir Módulo <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Gestión Financiera -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl mb-4 shadow-sm group-hover:scale-105 transition">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Gestión Financiera</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Cobro de pensiones, arqueo de caja, facturas pendientes y registro de pagos en línea.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <a href="/finanzas" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
+                            Abrir Módulo <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4. Portal Profesores -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xl mb-4 shadow-sm group-hover:scale-105 transition">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Portal Profesores</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Planilla de notas en línea, parciales, notas finales y retroalimentación pedagógica a los alumnos.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <a href="/profesor" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition">
+                            Abrir Módulo <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 5. Portal Estudiantes -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between group">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl mb-4 shadow-sm group-hover:scale-105 transition">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Portal Estudiantes</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Boletín de calificaciones en tiempo real, horario de clases y estado de pagos de pensión.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <a href="/estudiante" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">
+                            Abrir Módulo <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 6. SQL Database Console -->
+                <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-6 border border-slate-800 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-white/10 text-white flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Consola H2 Database</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Accede a la base de datos relacional para consultar y auditar tablas directamente vía SQL.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-white/10">
+                        <a href="/h2-console" target="_blank" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition border border-white/10">
+                            Abrir Consola SQL <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
